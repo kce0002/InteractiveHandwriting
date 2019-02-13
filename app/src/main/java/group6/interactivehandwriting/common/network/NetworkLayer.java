@@ -4,6 +4,7 @@ import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -20,21 +21,22 @@ import group6.interactivehandwriting.common.app.rooms.Room;
  */
 
 public interface NetworkLayer {
-    public void begin(final Profile profile);
-    public Profile getMyProfile();
+    void begin(final Profile profile);
+    Profile getMyProfile();
 
-    public void setRoomActivity(RoomActivity roomActivity);
+    void setRoomActivity(RoomActivity roomActivity);
 
-    public Set<Room> getRooms();
-    public void joinRoom(final Profile profile, final Room room);
-    public void synchronizeRoom();
-    public void exitRoom();
+    Set<Room> getRooms();
+    void joinRoom(final Profile profile, final Room room);
+    void synchronizeRoom();
+    void exitRoom();
 
-    public void sendFile(ParcelFileDescriptor fd);
+    void sendFile(ParcelFileDescriptor fd);
+    void sendStream(InputStream inputStream);
 
-    public void receiveDrawActions(final DrawActionHandle handle);
-    public void startDraw(final StartDrawAction action);
-    public void moveDraw(final MoveDrawAction action);
-    public void endDraw(final EndDrawAction action);
-    public void undo(Profile profile);
+    void receiveDrawActions(final DrawActionHandle handle);
+    void startDraw(final StartDrawAction action);
+    void moveDraw(final MoveDrawAction action);
+    void endDraw(final EndDrawAction action);
+    void undo(Profile profile);
 }

@@ -206,4 +206,8 @@ public class NCNetworkConnection {
     public void sendFile(Payload filePayload, List<String> endpointIds) {
         connectionClient.sendPayload(endpointIds, filePayload);
     }
+
+    public void sendStream(Payload streamPayload, List<String> endpointIds) {
+        connectionClient.sendPayload(endpointIds, streamPayload);
+    }
 }
