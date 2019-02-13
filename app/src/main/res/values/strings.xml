@@ -2,8 +2,8 @@
     <string name="app_name">InteractiveHandwriting</string>
 
     <!-- for the prototype -->
-    <string name="RoomActivity.Title">Room Activity</string>
-    <string name="DocumentActivity.Title">Document Activity</string>
+    <string name="RoomActivityTitle">Room</string>
+    <string name="DocumentActivityTitle">Document Activity</string>
     <string name="color">Color</string>
     <string name="load_doc">Load Doc</string>
     <string name="draw">Draw</string>

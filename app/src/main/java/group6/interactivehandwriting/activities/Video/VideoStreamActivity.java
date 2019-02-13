@@ -46,7 +46,6 @@ import java.util.UUID;
 
 public class VideoStreamActivity extends AppCompatActivity {
 
-    private Button btnCapture;
     private TextureView textureView;
 
     //Check state orientation of output image
@@ -63,12 +62,10 @@ public class VideoStreamActivity extends AppCompatActivity {
     private CameraCaptureSession cameraCaptureSessions;
     private CaptureRequest.Builder captureRequestBuilder;
     private Size imageDimension;
-    private ImageReader imageReader;
 
     //Save to FILE
     private File file;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
-    private boolean mFlashSupported;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
@@ -98,120 +95,8 @@ public class VideoStreamActivity extends AppCompatActivity {
         setContentView(R.layout.video_stream_layout);
 
         textureView = (TextureView)findViewById(R.id.texture_view);
-        //From Java 1.4 , you can use keyword 'assert' to check expression true or false
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
-        btnCapture = (Button)findViewById(R.id.btnCapture);
-        btnCapture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                takePicture();
-            }
-        });
-    }
-
-    private void takePicture() {
-        if(cameraDevice == null)
-            return;
-        CameraManager manager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
-        try{
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraDevice.getId());
-            Size[] jpegSizes = null;
-            if(characteristics != null)
-                jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-                        .getOutputSizes(ImageFormat.JPEG);
-
-            //Capture image with custom size
-            int width = 640;
-            int height = 480;
-            if(jpegSizes != null && jpegSizes.length > 0)
-            {
-                width = jpegSizes[0].getWidth();
-                height = jpegSizes[0].getHeight();
-            }
-            final ImageReader reader = ImageReader.newInstance(width,height,ImageFormat.JPEG,1);
-            List<Surface> outputSurface = new ArrayList<>(2);
-            outputSurface.add(reader.getSurface());
-            outputSurface.add(new Surface(textureView.getSurfaceTexture()));
-
-            final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(reader.getSurface());
-            captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-
-            //Check orientation base on device
-            int rotation = getWindowManager().getDefaultDisplay().getRotation();
-            captureBuilder.set(CaptureRequest.JPEG_ORIENTATION,ORIENTATIONS.get(rotation));
-
-            file = new File(Environment.getExternalStorageDirectory()+"/"+UUID.randomUUID().toString()+".jpg");
-            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
-                @Override
-                public void onImageAvailable(ImageReader imageReader) {
-                    Image image = null;
-                    try{
-                        image = reader.acquireLatestImage();
-                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        byte[] bytes = new byte[buffer.capacity()];
-                        buffer.get(bytes);
-                        save(bytes);
-
-                    }
-                    catch (FileNotFoundException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    finally {
-                        {
-                            if(image != null)
-                                image.close();
-                        }
-                    }
-                }
-                private void save(byte[] bytes) throws IOException {
-                    OutputStream outputStream = null;
-                    try{
-                        outputStream = new FileOutputStream(file);
-                        outputStream.write(bytes);
-                    }finally {
-                        if(outputStream != null)
-                            outputStream.close();
-                    }
-                }
-            };
-
-            reader.setOnImageAvailableListener(readerListener,mBackgroundHandler);
-            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
-                @Override
-                public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-                    super.onCaptureCompleted(session, request, result);
-                    Toast.makeText(VideoStreamActivity.this, "Saved "+file, Toast.LENGTH_SHORT).show();
-                    createCameraPreview();
-                }
-            };
-
-            cameraDevice.createCaptureSession(outputSurface, new CameraCaptureSession.StateCallback() {
-                @Override
-                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-                    try{
-                        cameraCaptureSession.capture(captureBuilder.build(),captureListener,mBackgroundHandler);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-
-                }
-            },mBackgroundHandler);
-
-
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
     }
 
     private void createCameraPreview() {
@@ -261,7 +146,6 @@ public class VideoStreamActivity extends AppCompatActivity {
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             assert map != null;
             imageDimension = map.getOutputSizes(SurfaceTexture.class)[0];
-            //Check realtime permission if run higher API 23
             if(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             {
                 ActivityCompat.requestPermissions(this,new String[]{
