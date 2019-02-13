@@ -31,6 +31,7 @@
             android:id="@+id/joinStream"
             android:layout_width="@android:dimen/thumbnail_width"
             android:layout_height="@android:dimen/notification_large_icon_height"
+            android:onClick="joinStream"
             android:text="@string/join_stream"
             tools:layout_editor_absoluteX="156dp" />
     </LinearLayout>
