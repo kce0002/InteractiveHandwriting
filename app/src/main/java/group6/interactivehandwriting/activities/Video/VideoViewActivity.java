@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -34,6 +35,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.nearby.connection.Payload;
+
+import org.apache.commons.io.IOUtils;
+
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
@@ -44,12 +49,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
 
 public class VideoViewActivity extends AppCompatActivity {
 
@@ -151,7 +158,7 @@ public class VideoViewActivity extends AppCompatActivity {
                     if(cameraDevice == null)
                         return;
                     cameraCaptureSessions = cameraCaptureSession;
-                    updatePreview();
+                    //updatePreview();
                 }
 
                 @Override
@@ -164,7 +171,7 @@ public class VideoViewActivity extends AppCompatActivity {
         }
     }
 
-    private void updatePreview() {
+    /*private void updatePreview() {
         if(cameraDevice == null)
             Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
         captureRequestBuilder.set(CaptureRequest.CONTROL_MODE,CaptureRequest.CONTROL_MODE_AUTO);
@@ -173,10 +180,10 @@ public class VideoViewActivity extends AppCompatActivity {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
-    private void openCamera() {
+    /*private void openCamera() {
         CameraManager manager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
         try{
             cameraId = manager.getCameraIdList()[0];
@@ -197,12 +204,12 @@ public class VideoViewActivity extends AppCompatActivity {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
-            openCamera();
+            //openCamera();
         }
 
         @Override
@@ -236,11 +243,12 @@ public class VideoViewActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        startBackgroundThread();
+        /*startBackgroundThread();
         if(textureView.isAvailable())
             openCamera();
         else
             textureView.setSurfaceTextureListener(textureListener);
+         */
     }
 
     @Override
@@ -264,5 +272,16 @@ public class VideoViewActivity extends AppCompatActivity {
         mBackgroundThread = new HandlerThread("Camera Background");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+
+    public void showVideo(InputStream i) {
+        try {
+            byte[] b = IOUtils.toByteArray(i);
+            //textureView.setSurfaceTexture((SurfaceTexture) b);
+            //textureView.setSurfaceTexture()
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
