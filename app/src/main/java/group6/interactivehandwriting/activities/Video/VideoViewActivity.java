@@ -124,12 +124,17 @@ public class VideoViewActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
+                handleNetworkStarted();
             }
 
             @Override
             public void onServiceDisconnected (ComponentName name) {
             }
         };
+    }
+
+    private void handleNetworkStarted() {
+        networkLayer.setVideoViewActivity(this);
     }
 
     private void createCameraPreview() {
