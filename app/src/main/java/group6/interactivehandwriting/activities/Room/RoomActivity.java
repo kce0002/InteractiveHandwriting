@@ -184,16 +184,10 @@ public class RoomActivity extends AppCompatActivity {
         }
     }
 
-    public void resizeDoc(View view) {
-        if (!resizeToggle) {
-            documentView.bringToFront();
-//            documentView.activateResizeMode();
-            resizeToggle = true;
-        } else {
-            roomView.bringToFront();
-//            documentView.deactivateResizeMode();
-            resizeToggle = false;
-        }
+    public void openStreamView(View view) {
+        // Go to stream view to either start streaming or view streaming
+//        Intent video_activity = new Intent(this, VideoActivity.class);
+
     }
 
     public void showPDF(File file) {
