@@ -22,4 +22,9 @@ public class VideoMenuActivity extends AppCompatActivity {
         Intent stream_activity = new Intent(this, VideoStreamActivity.class);
         VideoMenuActivity.this.startActivity(stream_activity);
     }
+
+    public void joinStream(View view) {
+        Intent view_activity = new Intent(this, VideoViewActivity.class);
+        VideoMenuActivity.this.startActivity(view_activity);
+    }
 }
