@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -178,7 +179,12 @@ public class NCNetworkLayerService extends NetworkLayerService {
     public void sendFile(ParcelFileDescriptor fd) {
         Payload filePayload = Payload.fromFile(fd);
         networkConnection.sendFile(filePayload, routingTable.getNeighborEndpoints());
+    }
 
+    @Override
+    public void sendStream(InputStream inputStream) {
+        Payload streamPayload = Payload.fromStream(inputStream);
+        networkConnection.sendStream(streamPayload, routingTable.getNeighborEndpoints());
     }
 
     @Override

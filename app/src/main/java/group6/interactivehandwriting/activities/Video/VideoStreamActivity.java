@@ -1,7 +1,10 @@
 package group6.interactivehandwriting.activities.Video;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -19,6 +22,7 @@ import android.media.ImageReader;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -32,11 +36,17 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import group6.interactivehandwriting.R;
+import group6.interactivehandwriting.common.app.Permissions;
+import group6.interactivehandwriting.common.network.NetworkLayer;
+import group6.interactivehandwriting.common.network.NetworkLayerBinder;
+import group6.interactivehandwriting.common.network.NetworkLayerService;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -63,11 +73,12 @@ public class VideoStreamActivity extends AppCompatActivity {
     private CaptureRequest.Builder captureRequestBuilder;
     private Size imageDimension;
 
-    //Save to FILE
-    private File file;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
+
+    NetworkLayer networkLayer;
+    ServiceConnection networkServiceConnection;
 
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -97,6 +108,31 @@ public class VideoStreamActivity extends AppCompatActivity {
         textureView = (TextureView)findViewById(R.id.texture_view);
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
+
+        networkServiceConnection = getNetworkServiceConnection();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Permissions.requestPermissions(this);
+        NetworkLayerService.startNetworkService(this);
+        NetworkLayerService.bindNetworkService(this, networkServiceConnection);
+    }
+
+    private ServiceConnection getNetworkServiceConnection() {
+        return new ServiceConnection()
+        {
+            @Override
+            public void onServiceConnected (ComponentName name, IBinder service){
+                NetworkLayerBinder binder = (NetworkLayerBinder) service;
+                networkLayer = binder.getNetworkLayer();
+            }
+
+            @Override
+            public void onServiceDisconnected (ComponentName name) {
+            }
+        };
     }
 
     private void createCameraPreview() {
@@ -179,7 +215,7 @@ public class VideoStreamActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-
+            System.out.println("Update");
         }
     };
 
@@ -226,5 +262,13 @@ public class VideoStreamActivity extends AppCompatActivity {
         mBackgroundThread = new HandlerThread("Camera Background");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+
+    private void sendStream() {
+
+        // Create input stream from camera
+        InputStream inputStream = null;
+
+        networkLayer.sendStream(inputStream);
     }
 }
