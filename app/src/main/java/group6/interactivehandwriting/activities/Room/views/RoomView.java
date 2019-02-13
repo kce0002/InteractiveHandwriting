@@ -40,8 +40,7 @@ public class RoomView extends View {
     private float mPosY;
     private float cX, cY; // circle coords
 
-    private ScaleGestureDetector mScaleDetector;
-    private float mScaleFactor = 2.0f;
+    private float mScaleFactor = 1.0f;
     private float scalePointX;
     private float scalePointY;
 
@@ -52,11 +51,11 @@ public class RoomView extends View {
 
     // document resizing
     private ScaleGestureDetector mRoomScaleDetector;
-    private ScaleGestureDetector mDocumentScaleDetector;
-    private int mActivePointerId = INVALID_POINTER_ID;
+
+    private DocumentView documentView;
 
     private enum TouchStates {
-        RESIZE, DRAW;
+        RESIZE, DRAW
     }
 
     private TouchStates touchState;
@@ -112,9 +111,21 @@ public class RoomView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        scalePointX = documentView.getPivotX();
+        scalePointY = documentView.getPivotY();
         canvas.save();
         canvas.scale(mScaleFactor, mScaleFactor, scalePointX, scalePointY);
         canvas.translate(mPosX, mPosY);
+
+        documentView.setScaleX(mScaleFactor);
+        documentView.setScaleY(mScaleFactor);
+
+        documentView.animate()
+                .x(mPosX * mScaleFactor)
+                .y(mPosY * mScaleFactor)
+                .setDuration(0)
+                .start();
+
 
         // Draw the center of the screen
 //        canvas.drawCircle(cX, cY, 10, marker);
@@ -247,7 +258,12 @@ public class RoomView extends View {
             scalePointY = detector.getFocusY();
 
             // Don't let the object get too small or too large.
-            mScaleFactor = Math.max(MIN_SCALE, Math.min(mScaleFactor, MAX_SCALE));
+            if (mScaleFactor > MAX_SCALE) {
+                mScaleFactor = MAX_SCALE;
+            }
+            if (mScaleFactor < MIN_SCALE) {
+                mScaleFactor = MIN_SCALE;
+            }
 
             invalidate();
             return true;
@@ -260,5 +276,10 @@ public class RoomView extends View {
             if (networkLayer != null) {
                 networkLayer.undo(profile);
             }
+        }
+
+
+        public void setDocumentView(DocumentView documentView) {
+            this.documentView = documentView;
         }
     }

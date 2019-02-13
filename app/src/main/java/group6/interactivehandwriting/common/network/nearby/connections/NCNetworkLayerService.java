@@ -1,17 +1,34 @@
 package group6.interactivehandwriting.common.network.nearby.connections;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.ParcelFileDescriptor;
+import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.Payload;
+import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
+import com.shockwave.pdfium.PdfDocument;
+import com.shockwave.pdfium.PdfiumCore;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import group6.interactivehandwriting.R;
+import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.activities.Room.views.DocumentView;
 import group6.interactivehandwriting.common.app.actions.Action;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.DrawableAction;
@@ -23,6 +40,7 @@ import group6.interactivehandwriting.common.app.rooms.Room;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
 import group6.interactivehandwriting.common.network.nearby.connections.device.NCRoutingTable;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 import group6.interactivehandwriting.common.network.nearby.connections.message.serial.NetworkSerializable;
 import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessage;
 import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessageHeader;
@@ -52,6 +70,9 @@ public class NCNetworkLayerService extends NetworkLayerService {
     private Room myRoom;
 
     private DrawActionHandle drawActionHandle;
+
+
+    private RoomActivity roomActivity;
 
     public boolean onConnectionInitiated(String endpointId) {
         Toast.makeText(context, "Device found with id " + endpointId, Toast.LENGTH_SHORT).show();
@@ -94,6 +115,11 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
             Toast.makeText(context, "Starting Network Service", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void setRoomActivity(RoomActivity roomActivity) {
+        this.roomActivity = roomActivity;
     }
 
     @Override
@@ -149,6 +175,13 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
+    public void sendFile(ParcelFileDescriptor fd) {
+        Payload filePayload = Payload.fromFile(fd);
+        networkConnection.sendFile(filePayload, routingTable.getNeighborEndpoints());
+
+    }
+
+    @Override
     public void receiveDrawActions(DrawActionHandle handle) {
         this.drawActionHandle = handle;
     }
@@ -199,11 +232,21 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     public void receiveMessage(String endpoint, Payload payload) {
         switch(payload.getType()) {
+            case Payload.Type.FILE:
+                handleFilePayload(endpoint, payload);
+                break;
             case Payload.Type.BYTES:
                 handleBytesPayload(endpoint, payload.asBytes());
                 break;
             default:
                 break;
+        }
+    }
+
+    private void handleFilePayload(String endpoint, Payload payload) {
+        if (payload != null) {
+            File file = payload.asFile().asJavaFile();
+            this.roomActivity.showPDF(file);
         }
     }
 

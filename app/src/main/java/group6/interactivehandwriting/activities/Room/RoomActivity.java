@@ -30,6 +30,7 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import com.skydoves.colorpickerview.sliders.AlphaSlideBar;
 import com.skydoves.colorpickerview.sliders.BrightnessSlideBar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
@@ -41,6 +42,7 @@ import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
+import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkLayerService;
 
 public class RoomActivity extends AppCompatActivity {
     private RoomView roomView;
@@ -74,6 +76,8 @@ public class RoomActivity extends AppCompatActivity {
 
         documentView = findViewById(R.id.documentView);
 
+        roomView.setDocumentView(documentView);
+
         seekbar = findViewById(R.id.seekBar);
         seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
 
@@ -81,7 +85,8 @@ public class RoomActivity extends AppCompatActivity {
         AlphaSlideBar alphaSlideBar = findViewById(R.id.alphaSlideBar);
         BrightnessSlideBar brightnessSlideBar = findViewById(R.id.brightnessSlide);
 
-        resizeToggle = false;
+
+        resizeToggle = findViewById(R.id.toggle_button).isActivated();
 
         // Add alpha and brightness sliders
         color_picker_view.attachAlphaSlider(alphaSlideBar);
@@ -144,6 +149,7 @@ public class RoomActivity extends AppCompatActivity {
 
     private void handleNetworkStarted() {
         roomView.setNetworkLayer(networkLayer);
+        networkLayer.setRoomActivity(this);
     }
 
     @Override
@@ -179,49 +185,58 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     public void resizeDoc(View view) {
-        if (resizeToggle == false) {
+        if (!resizeToggle) {
             documentView.bringToFront();
-            documentView.activateResizeMode();
+//            documentView.activateResizeMode();
             resizeToggle = true;
         } else {
             roomView.bringToFront();
-            documentView.deactivateResizeMode();
+//            documentView.deactivateResizeMode();
             resizeToggle = false;
         }
     }
 
     public void showPDF(File file) {
         try {
+
             PdfiumCore pdfiumCore = new PdfiumCore(context);
 
             ParcelFileDescriptor fd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
             PdfDocument pdfDocument = pdfiumCore.newDocument(fd);
-
-            int pageNum = 0;
-            pdfiumCore.openPage(pdfDocument, pageNum);
 
             //Get current screen size
             DisplayMetrics metrics = getBaseContext().getResources().getDisplayMetrics();
             int screen_width = metrics.widthPixels;
             int screen_height = metrics.heightPixels;
 
+            int pageCount = pdfiumCore.getPageCount(pdfDocument);
+
             // ARGB_8888 - best quality, high memory usage, higher possibility of OutOfMemoryError
             // RGB_565 - little worse quality, twice less memory usage
-            Bitmap bitmap = Bitmap.createBitmap(screen_width, screen_height, Bitmap.Config.ARGB_8888);
 
+            Bitmap bitmapArr[] = new Bitmap[pageCount];
 
-            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0, screen_width, screen_height, true);
+            for (int pageNum = 0; pageNum < pageCount; pageNum++) {
+                Bitmap bitmap = Bitmap.createBitmap(screen_width, screen_height, Bitmap.Config.ARGB_8888);
+                pdfiumCore.openPage(pdfDocument, pageNum);
+                pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0, screen_width, screen_height, true);
+                bitmapArr[pageNum] = bitmap;
+            }
 
-            documentView.setImageBitmap(bitmap); // TODO this functionality should be separate from the RoomView functionality
+            documentView.setPDF(bitmapArr);
 
-            try {
-                TimeUnit.SECONDS.sleep(3);
-            } catch (InterruptedException ie) {
-                ie.printStackTrace();
+            if (networkLayer != null) {
+                networkLayer.sendFile(fd);
             }
 
             pdfiumCore.closeDocument(pdfDocument); // important!
+
+
+            findViewById(R.id.decPageBtn).setVisibility(View.VISIBLE);
+            findViewById(R.id.incPageBtn).setVisibility(View.VISIBLE);
+
         } catch(IOException ex) {
+            Toast.makeText(context, "File corrupted", Toast.LENGTH_SHORT).show();
             ex.printStackTrace();
         }
     }
@@ -240,6 +255,15 @@ public class RoomActivity extends AppCompatActivity {
     public void undo(View view) {
         roomView.undo();
     }
+
+    public void incPDFPage(View view) {
+        documentView.incPDFPage();
+    }
+
+    public void decPDFPage(View view) {
+        documentView.decPDFPage();
+    }
+
 
     private void set_initial_color() {
         // Wait for color_picker_view to load to get width and height
@@ -268,15 +292,16 @@ public class RoomActivity extends AppCompatActivity {
 
     public void toggleColorPickerView(View view) {
 
-
-
         ConstraintLayout colorPickerLayout = findViewById(R.id.color_picker_view);
+        ConstraintLayout toolboxLayout = findViewById(R.id.toolbox_view);
 
         if (colorPickerLayout.getVisibility() == View.VISIBLE) {
             colorPickerLayout.setVisibility(View.GONE);
+            toolboxLayout.setVisibility(View.VISIBLE);
         }
         else {
             colorPickerLayout.setVisibility(View.VISIBLE);
+            toolboxLayout.setVisibility(View.INVISIBLE);
         }
 
 
@@ -288,6 +313,7 @@ public class RoomActivity extends AppCompatActivity {
 
     public void colorErase(View view) {
         RoomViewActionUtility.setEraser();
+        view.setPressed(true);
     }
 
     public void saveCanvas(View view) {
@@ -319,6 +345,5 @@ public class RoomActivity extends AppCompatActivity {
             RoomViewActionUtility.ChangeWidth((float)seekbar.getProgress());
         }
     };
-
 
 }
