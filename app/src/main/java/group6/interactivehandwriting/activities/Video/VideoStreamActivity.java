@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -23,6 +24,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +36,8 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.gms.nearby.connection.Payload;
 
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.app.Permissions;
@@ -79,6 +83,8 @@ public class VideoStreamActivity extends AppCompatActivity {
 
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
+
+    private OutputStream outputStream;
 
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -127,6 +133,7 @@ public class VideoStreamActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
+                setupOutputStream();
             }
 
             @Override
@@ -215,7 +222,14 @@ public class VideoStreamActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
             System.out.println("Update");
+            // Write surface texture to output stream
+            try {
+                outputStream.write(1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -264,11 +278,19 @@ public class VideoStreamActivity extends AppCompatActivity {
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
 
-    private void sendStream() {
+    private void setupOutputStream() {
+        try {
+            ParcelFileDescriptor[] payloadPipe = ParcelFileDescriptor.createPipe();
 
-        // Create input stream from camera
-        InputStream inputStream = null;
+            // Send the first half of the payload (the read side) to Nearby Connections.
+            networkLayer.sendStream(Payload.fromStream(payloadPipe[0]));
 
-        networkLayer.sendStream(inputStream);
+            // Use the second half to write the output stream
+            outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 }

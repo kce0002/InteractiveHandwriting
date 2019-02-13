@@ -3,6 +3,8 @@ package group6.interactivehandwriting.common.network;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.gms.nearby.connection.Payload;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
@@ -34,7 +36,7 @@ public interface NetworkLayer {
     void exitRoom();
 
     void sendFile(ParcelFileDescriptor fd);
-    void sendStream(InputStream inputStream);
+    void sendStream(Payload streamPayload);
 
     void receiveDrawActions(final DrawActionHandle handle);
     void startDraw(final StartDrawAction action);

@@ -189,8 +189,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
-    public void sendStream(InputStream inputStream) {
-        Payload streamPayload = Payload.fromStream(inputStream);
+    public void sendStream(Payload streamPayload) {
         networkConnection.sendStream(streamPayload, routingTable.getNeighborEndpoints());
     }
 
@@ -252,7 +251,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
                 handleBytesPayload(endpoint, payload.asBytes());
                 break;
             case Payload.Type.STREAM:
-
+                handleStreamPayload(endpoint, payload);
                 break;
             default:
                 break;
@@ -281,7 +280,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     private void handleStreamPayload(String endpoint, Payload payload) {
-        this.videoViewActivity.showVideo(payload.asStream().asInputStream());
+        System.out.println(payload.asBytes());
+//        this.videoViewActivity.showVideo(payload.asStream().asInputStream());
     }
 
     private void dispatchRoomMessage(String endpoint, SerialMessageHeader header, byte[] dataSection) {
