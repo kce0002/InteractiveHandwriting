@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.EndDrawAction;
 import group6.interactivehandwriting.common.app.actions.draw.MoveDrawAction;
@@ -25,6 +26,7 @@ public interface NetworkLayer {
     Profile getMyProfile();
 
     void setRoomActivity(RoomActivity roomActivity);
+    void setVideoViewActivity(VideoViewActivity videoViewActivity);
 
     Set<Room> getRooms();
     void joinRoom(final Profile profile, final Room room);

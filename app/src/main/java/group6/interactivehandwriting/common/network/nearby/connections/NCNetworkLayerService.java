@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.nearby.Nearby;
@@ -30,6 +31,7 @@ import java.util.Set;
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
+import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.Action;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.DrawableAction;
@@ -72,8 +74,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private DrawActionHandle drawActionHandle;
 
-
     private RoomActivity roomActivity;
+    private VideoViewActivity videoViewActivity;
 
     public boolean onConnectionInitiated(String endpointId) {
         Toast.makeText(context, "Device found with id " + endpointId, Toast.LENGTH_SHORT).show();
@@ -121,6 +123,11 @@ public class NCNetworkLayerService extends NetworkLayerService {
     @Override
     public void setRoomActivity(RoomActivity roomActivity) {
         this.roomActivity = roomActivity;
+    }
+
+    @Override
+    public void setVideoViewActivity(VideoViewActivity videoViewActivity) {
+        this.videoViewActivity = videoViewActivity;
     }
 
     @Override
