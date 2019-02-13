@@ -251,6 +251,9 @@ public class NCNetworkLayerService extends NetworkLayerService {
             case Payload.Type.BYTES:
                 handleBytesPayload(endpoint, payload.asBytes());
                 break;
+            case Payload.Type.STREAM:
+
+                break;
             default:
                 break;
         }
@@ -275,6 +278,10 @@ public class NCNetworkLayerService extends NetworkLayerService {
         } else {
             dispatchMessage(endpoint, header, data);
         }
+    }
+
+    private void handleStreamPayload(String endpoint, Payload payload) {
+        this.videoViewActivity.showVideo(payload.asStream().asInputStream());
     }
 
     private void dispatchRoomMessage(String endpoint, SerialMessageHeader header, byte[] dataSection) {
