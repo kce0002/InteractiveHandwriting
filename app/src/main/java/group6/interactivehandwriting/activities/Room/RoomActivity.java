@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
 import group6.interactivehandwriting.activities.Room.views.RoomView;
+import group6.interactivehandwriting.activities.Video.VideoMenuActivity;
 import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
@@ -186,8 +187,8 @@ public class RoomActivity extends AppCompatActivity {
 
     public void openStreamView(View view) {
         // Go to stream view to either start streaming or view streaming
-//        Intent video_activity = new Intent(this, VideoActivity.class);
-
+        Intent video_activity = new Intent(this, VideoMenuActivity.class);
+        RoomActivity.this.startActivity(video_activity);
     }
 
     public void showPDF(File file) {
