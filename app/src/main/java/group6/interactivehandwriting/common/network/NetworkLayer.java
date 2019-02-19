@@ -18,6 +18,7 @@ import group6.interactivehandwriting.common.app.actions.draw.MoveDrawAction;
 import group6.interactivehandwriting.common.app.actions.draw.StartDrawAction;
 import group6.interactivehandwriting.common.app.Profile;
 import group6.interactivehandwriting.common.app.rooms.Room;
+import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
 
 /**
  * Created by JakeL on 9/22/18.
@@ -29,6 +30,8 @@ public interface NetworkLayer {
 
     void setRoomActivity(RoomActivity roomActivity);
     void setVideoViewActivity(VideoViewActivity videoViewActivity);
+
+    NCNetworkConnection getNCNetworkConnection();
 
     Set<Room> getRooms();
     void joinRoom(final Profile profile, final Room room);

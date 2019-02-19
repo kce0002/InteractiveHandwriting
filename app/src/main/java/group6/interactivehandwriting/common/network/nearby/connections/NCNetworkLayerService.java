@@ -92,6 +92,10 @@ public class NCNetworkLayerService extends NetworkLayerService {
         Toast.makeText(context, "Device disconnected with id " + endpointId, Toast.LENGTH_SHORT).show();
     }
 
+    public NCNetworkConnection getNCNetworkConnection() {
+        return networkConnection;
+    }
+
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
         return START_STICKY_COMPATIBILITY;

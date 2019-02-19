@@ -151,6 +151,7 @@ public class RoomActivity extends AppCompatActivity {
     private void handleNetworkStarted() {
         roomView.setNetworkLayer(networkLayer);
         networkLayer.setRoomActivity(this);
+        networkLayer.getNCNetworkConnection().advertise();
     }
 
     @Override

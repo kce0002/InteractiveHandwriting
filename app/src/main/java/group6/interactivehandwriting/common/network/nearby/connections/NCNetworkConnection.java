@@ -40,10 +40,10 @@ public class NCNetworkConnection {
     public void begin(Context context) {
         Log.v(V_TAG, "Starting network service");
         this.connectionClient = Nearby.getConnectionsClient(context);
-        advertise();
+        discover();
     }
 
-    private void advertise() {
+    public void advertise() {
         Task<Void> advertiseTask = connectionClient.startAdvertising(
                 deviceName,
                 SERVICE_ID,
@@ -110,7 +110,6 @@ public class NCNetworkConnection {
             @Override
             public void onSuccess(Void aVoid) {
                 // TODO what happens when the advertising begins successfully
-                discover();
             }
         };
     }
