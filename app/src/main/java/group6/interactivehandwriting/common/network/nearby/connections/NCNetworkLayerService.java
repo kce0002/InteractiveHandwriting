@@ -280,7 +280,11 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     private void handleStreamPayload(String endpoint, Payload payload) {
-        System.out.println(payload.asBytes());
+        System.out.println(payload.asStream());
+        Payload.Stream payloadStream = payload.asStream();
+
+
+
 //        this.videoViewActivity.showVideo(payload.asStream().asInputStream());
     }
 

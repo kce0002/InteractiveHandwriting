@@ -230,10 +230,12 @@ public class VideoStreamActivity extends AppCompatActivity {
                 Bitmap textureViewBitmap = textureView.getBitmap();
                 ByteArrayOutputStream str = new ByteArrayOutputStream();
 
-                textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 100, str);
+                textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 25, str);
                 byte[] bitmapArray = str.toByteArray();
+                if (bitmapArray != null && bitmapArray.length > 0) {
+                    outputStream.write(bitmapArray);
 
-                outputStream.write(bitmapArray);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
