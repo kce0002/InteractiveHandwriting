@@ -43,6 +43,7 @@ import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
+import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkLayerService;
 
 public class RoomActivity extends AppCompatActivity {
@@ -57,6 +58,7 @@ public class RoomActivity extends AppCompatActivity {
 
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
+    private NCNetworkConnection ncNetworkConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,13 +153,17 @@ public class RoomActivity extends AppCompatActivity {
     private void handleNetworkStarted() {
         roomView.setNetworkLayer(networkLayer);
         networkLayer.setRoomActivity(this);
-        networkLayer.getNCNetworkConnection().advertise();
+        ncNetworkConnection = networkLayer.getNCNetworkConnection();
+        ncNetworkConnection.stopDiscovering();
+        ncNetworkConnection.advertise();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unbindService(networkServiceConnection);
+        ncNetworkConnection.stopAdvertising();
+        ncNetworkConnection.discover();
     }
 
     public void showDocument(View view) {

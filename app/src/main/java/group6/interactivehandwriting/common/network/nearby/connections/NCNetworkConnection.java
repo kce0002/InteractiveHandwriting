@@ -54,6 +54,14 @@ public class NCNetworkConnection {
         advertiseTask.addOnFailureListener(getAdvertisingFailedCallback());
     }
 
+    public void stopAdvertising() {
+        connectionClient.stopAdvertising();
+    }
+
+    public void stopDiscovering() {
+        connectionClient.stopDiscovery();
+    }
+
     private ConnectionLifecycleCallback getConnectionLifeCycleCallback() {
         return new ConnectionLifecycleCallback() {
             @Override
@@ -123,7 +131,7 @@ public class NCNetworkConnection {
         };
     }
 
-    private void discover() {
+    public void discover() {
         Task<Void> discoverTask = connectionClient.startDiscovery(
                 SERVICE_ID,
                 getEndpointDiscoveryCallback(),
