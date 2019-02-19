@@ -45,6 +45,7 @@ import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -226,7 +227,13 @@ public class VideoStreamActivity extends AppCompatActivity {
             System.out.println("Update");
             // Write surface texture to output stream
             try {
-                outputStream.write(1);
+                Bitmap textureViewBitmap = textureView.getBitmap();
+                ByteArrayOutputStream str = new ByteArrayOutputStream();
+
+                textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 100, str);
+                byte[] bitmapArray = str.toByteArray();
+
+                outputStream.write(bitmapArray);
             } catch (IOException e) {
                 e.printStackTrace();
             }
