@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -284,12 +285,10 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     private void handleStreamPayload(String endpoint, Payload payload) {
-        System.out.println(payload.asStream());
         Payload.Stream payloadStream = payload.asStream();
-
-
-
-//        this.videoViewActivity.showVideo(payload.asStream().asInputStream());
+        ParcelFileDescriptor fd = payloadStream.asParcelFileDescriptor();
+        InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(fd);
+        this.videoViewActivity.showVideo(inputStream);
     }
 
     private void dispatchRoomMessage(String endpoint, SerialMessageHeader header, byte[] dataSection) {
