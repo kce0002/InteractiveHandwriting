@@ -64,9 +64,10 @@ public class VideoViewActivity extends AppCompatActivity {
     public void showVideo(InputStream inputStream) {
         try {
             while (inputStream.available() > 0) {
-                int buffer = inputStream.read();
+                byte[] buffer = new byte[100];
+                int bytesRead = inputStream.read(buffer);
 //                byte[] bytes = IOUtils.toByteArray(inputStream);
-                System.out.println(buffer);
+                System.out.println(buffer[0]);
             }
         } catch (IOException e) {
             e.printStackTrace();

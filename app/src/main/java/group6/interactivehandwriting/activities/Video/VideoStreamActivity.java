@@ -44,7 +44,9 @@ import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
+import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,6 +55,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,10 +86,9 @@ public class VideoStreamActivity extends AppCompatActivity {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
+
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
-
-    private OutputStream outputStream;
 
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -134,7 +137,6 @@ public class VideoStreamActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
-                setupOutputStream();
             }
 
             @Override
@@ -224,21 +226,16 @@ public class VideoStreamActivity extends AppCompatActivity {
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
 
-            System.out.println("Update");
-            // Write surface texture to output stream
-            try {
-                Bitmap textureViewBitmap = textureView.getBitmap();
-                ByteArrayOutputStream str = new ByteArrayOutputStream();
+            Bitmap textureViewBitmap = textureView.getBitmap();
+            ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
-                textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 25, str);
-                byte[] bitmapArray = str.toByteArray();
-                if (bitmapArray != null && bitmapArray.length > 0) {
-                    outputStream.write(bitmapArray);
+            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 0, bitmapStream);
 
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println("streaming");
+            byte[] bitmapByteArray = bitmapStream.toByteArray();
+
+            networkLayer.sendBytes(bitmapByteArray);
+
         }
     };
 
@@ -286,20 +283,4 @@ public class VideoStreamActivity extends AppCompatActivity {
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
-
-    private void setupOutputStream() {
-        try {
-            ParcelFileDescriptor[] payloadPipe = ParcelFileDescriptor.createPipe();
-
-            // Send the first half of the payload (the read side) to Nearby Connections.
-            networkLayer.sendStream(Payload.fromStream(payloadPipe[0]));
-
-            // Use the second half to write the output stream
-            outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(payloadPipe[1]);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

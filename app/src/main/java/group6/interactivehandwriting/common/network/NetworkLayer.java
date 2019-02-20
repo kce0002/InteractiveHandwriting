@@ -38,6 +38,8 @@ public interface NetworkLayer {
     void synchronizeRoom();
     void exitRoom();
 
+    void createVideoStreamHeader();
+    void sendBytes(byte[] bytes);
     void sendFile(ParcelFileDescriptor fd);
     void sendStream(Payload streamPayload);
 

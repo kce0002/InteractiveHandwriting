@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import group6.interactivehandwriting.common.app.Profile;
+import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessage;
+import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessageHeader;
 
 // TODO resolve if certain network components need their own thread
 public class NCNetworkConnection {
@@ -210,11 +212,36 @@ public class NCNetworkConnection {
         connectionClient.sendPayload(endpointIds, message);
     }
 
+    public void sendMessage(SerialMessageHeader header, byte[] bytes, List<String> endpointIds) {
+        int maxBytes = ConnectionsClient.MAX_BYTES_DATA_SIZE - SerialMessageHeader.BYTE_SIZE;
+        if (bytes.length < maxBytes) {
+            sendBytes(header, bytes, endpointIds);
+            return;
+        }
+        byte[] bytesToSend = new byte[maxBytes];
+        for (int i = 0; i < bytes.length; i++) {
+            if (i == maxBytes) {
+                sendBytes(header, bytesToSend, endpointIds);
+                bytesToSend = new byte[maxBytes];
+            }
+            bytesToSend[i] = bytes[i % maxBytes];
+        }
+        sendBytes(header, bytesToSend, endpointIds);
+
+    }
+
     public void sendFile(Payload filePayload, List<String> endpointIds) {
         connectionClient.sendPayload(endpointIds, filePayload);
     }
 
     public void sendStream(Payload streamPayload, List<String> endpointIds) {
         connectionClient.sendPayload(endpointIds, streamPayload);
+    }
+
+    private void sendBytes(SerialMessageHeader header, byte[] bytesToSend, List<String> endpointIds) {
+        SerialMessage message = new SerialMessage().withHeader(header).withData(bytesToSend);
+        Payload bytesPayload = Payload.fromBytes(message.toBytes());
+        connectionClient.sendPayload(endpointIds, bytesPayload);
+
     }
 }

@@ -63,6 +63,8 @@ import group6.interactivehandwriting.common.network.nearby.connections.message.s
 
 // TODO we should definitely create an object that encapsulates the HEADER, DATA section pair for byte[]
 public class NCNetworkLayerService extends NetworkLayerService {
+    private int frameCount = 0;
+
     private static boolean isActive = false;
 
     private NCRoutingTable routingTable;
@@ -188,6 +190,21 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
+    public void createVideoStreamHeader() {
+
+    }
+
+    @Override
+    public void sendBytes(byte[] bytes) {
+        SerialMessageHeader header = new SerialMessageHeader()
+                .withId(myProfile.deviceId)
+                .withRoomNumber(myRoom.getRoomNumber())
+                .withSequenceNumber(SerialMessageHeader.getNextSequenceNumber())
+                .withType(NetworkMessageType.VIDEO_STREAM);
+        networkConnection.sendMessage(header, bytes, routingTable.getNeighborEndpoints());
+    }
+
+    @Override
     public void sendFile(ParcelFileDescriptor fd) {
         Payload filePayload = Payload.fromFile(fd);
         networkConnection.sendFile(filePayload, routingTable.getNeighborEndpoints());
@@ -285,15 +302,17 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     private void handleStreamPayload(String endpoint, Payload payload) {
-        Payload.Stream payloadStream = payload.asStream();
-        ParcelFileDescriptor fd = payloadStream.asParcelFileDescriptor();
-        InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(fd);
-        this.videoViewActivity.showVideo(inputStream);
+        InputStream payloadStream = payload.asStream().asInputStream();
+        this.videoViewActivity.showVideo(payloadStream);
     }
 
     private void dispatchRoomMessage(String endpoint, SerialMessageHeader header, byte[] dataSection) {
         long id = header.getDeviceId();
         switch(header.getType()) {
+            case VIDEO_STREAM:
+                this.frameCount++;
+                System.out.println("Byte Array Received");
+                System.out.println(this.frameCount);
             case START_DRAW:
                 sendActionToCanvasManager(id, StartDrawActionMessage.actionFromBytes(dataSection));
                 break;
