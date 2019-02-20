@@ -7,6 +7,11 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
@@ -54,6 +59,18 @@ public class VideoViewActivity extends AppCompatActivity {
 
     private void handleNetworkStarted() {
         networkLayer.setVideoViewActivity(this);
+    }
+
+    public void showVideo(InputStream inputStream) {
+        try {
+            while (inputStream.available() > 0) {
+                int buffer = inputStream.read();
+//                byte[] bytes = IOUtils.toByteArray(inputStream);
+                System.out.println(buffer);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
