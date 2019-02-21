@@ -3,6 +3,8 @@ package group6.interactivehandwriting.activities.Video;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.app.Permissions;
@@ -61,17 +64,8 @@ public class VideoViewActivity extends AppCompatActivity {
         networkLayer.setVideoViewActivity(this);
     }
 
-    public void showVideo(InputStream inputStream) {
-        try {
-            while (inputStream.available() > 0) {
-                byte[] buffer = new byte[100];
-                int bytesRead = inputStream.read(buffer);
-//                byte[] bytes = IOUtils.toByteArray(inputStream);
-                System.out.println(buffer[0]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void showVideo(byte[] frameBytes) {
+        Bitmap bmp = BitmapFactory.decodeByteArray(frameBytes, 0, frameBytes.length);
     }
 
 }

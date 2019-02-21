@@ -63,7 +63,6 @@ import group6.interactivehandwriting.common.network.nearby.connections.message.s
 
 // TODO we should definitely create an object that encapsulates the HEADER, DATA section pair for byte[]
 public class NCNetworkLayerService extends NetworkLayerService {
-    private int frameCount = 0;
 
     private static boolean isActive = false;
 
@@ -190,11 +189,6 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
-    public void createVideoStreamHeader() {
-
-    }
-
-    @Override
     public void sendBytes(byte[] bytes) {
         SerialMessageHeader header = new SerialMessageHeader()
                 .withId(myProfile.deviceId)
@@ -302,17 +296,13 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     private void handleStreamPayload(String endpoint, Payload payload) {
-        InputStream payloadStream = payload.asStream().asInputStream();
-        this.videoViewActivity.showVideo(payloadStream);
     }
 
     private void dispatchRoomMessage(String endpoint, SerialMessageHeader header, byte[] dataSection) {
         long id = header.getDeviceId();
         switch(header.getType()) {
             case VIDEO_STREAM:
-                this.frameCount++;
-                System.out.println("Byte Array Received");
-                System.out.println(this.frameCount);
+                videoViewActivity.showVideo(dataSection);
             case START_DRAW:
                 sendActionToCanvasManager(id, StartDrawActionMessage.actionFromBytes(dataSection));
                 break;

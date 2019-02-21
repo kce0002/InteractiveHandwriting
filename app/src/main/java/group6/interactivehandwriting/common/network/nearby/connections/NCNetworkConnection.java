@@ -222,7 +222,12 @@ public class NCNetworkConnection {
         for (int i = 0; i < bytes.length; i++) {
             if (i == maxBytes) {
                 sendBytes(header, bytesToSend, endpointIds);
-                bytesToSend = new byte[maxBytes];
+                if (bytes.length - i < maxBytes) {
+                    bytesToSend = new byte[bytes.length - i];
+                }
+                else {
+                    bytesToSend = new byte[maxBytes];
+                }
             }
             bytesToSend[i] = bytes[i % maxBytes];
         }

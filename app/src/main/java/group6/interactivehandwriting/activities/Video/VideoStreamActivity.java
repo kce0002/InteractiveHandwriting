@@ -235,7 +235,6 @@ public class VideoStreamActivity extends AppCompatActivity {
             byte[] bitmapByteArray = bitmapStream.toByteArray();
 
             networkLayer.sendBytes(bitmapByteArray);
-
         }
     };
 
