@@ -230,11 +230,11 @@ public class VideoStreamActivity extends AppCompatActivity {
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
             // Trials:
-            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 0, bitmapStream);
+            //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 0, bitmapStream);
             //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 0, bitmapStream);
             //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 25, bitmapStream);
             //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 25, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bitmapStream);
+            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 11, bitmapStream);
             //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 50, bitmapStream);
             //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 75, bitmapStream);
             //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 75, bitmapStream);
