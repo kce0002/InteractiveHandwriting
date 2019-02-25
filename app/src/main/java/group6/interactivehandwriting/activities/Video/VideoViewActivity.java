@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ImageView;
 
 import org.apache.commons.io.IOUtils;
 
@@ -26,12 +27,14 @@ public class VideoViewActivity extends AppCompatActivity {
 
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
+    public ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_view_layout);
 
+        imageView = findViewById(R.id.imageView);
 
         networkServiceConnection = getNetworkServiceConnection();
     }
@@ -66,6 +69,7 @@ public class VideoViewActivity extends AppCompatActivity {
 
     public void showVideo(byte[] frameBytes) {
         Bitmap bmp = BitmapFactory.decodeByteArray(frameBytes, 0, frameBytes.length);
+        imageView.setImageBitmap(bmp);
     }
 
 }
