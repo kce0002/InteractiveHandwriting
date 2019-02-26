@@ -241,9 +241,26 @@ public class VideoStreamActivity extends AppCompatActivity {
             //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bitmapStream);
             //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 100, bitmapStream);
             System.out.println("streaming");
-            byte[] bitmapByteArray = bitmapStream.toByteArray();
 
-            networkLayer.sendBytes(bitmapByteArray);
+            // Trying to handle breaking byte array up:
+            byte[] bitmapByteArray = new byte[bitmapStream.size() + 1];
+            byte[] temp = bitmapStream.toByteArray();
+
+            // Check size
+            if (bitmapStream.size() > 32767) {
+                bitmapByteArray[0] = 1;
+            }
+            else {
+                bitmapByteArray[0] = 0;
+            }
+
+            for (int i = 0; i < temp.length; i++) {
+                bitmapByteArray[i + 1] = temp[i];
+            }
+
+            // need a loop to send the chunks of data
+
+            networkLayer.sendBytes(temp); // this will need to be changed to bitmapByteArray when this is done
         }
     };
 
