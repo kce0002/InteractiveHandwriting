@@ -67,6 +67,8 @@ public class VideoStreamActivity extends AppCompatActivity {
 
     private TextureView textureView;
 
+
+
     //Check state orientation of output image
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static{
@@ -86,6 +88,8 @@ public class VideoStreamActivity extends AppCompatActivity {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
+    public static final int WIFI_QUALITY = 20;
+    public static final int BLUETOOTH_QUALITY = 5;
 
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
@@ -229,7 +233,9 @@ public class VideoStreamActivity extends AppCompatActivity {
             Bitmap textureViewBitmap = textureView.getBitmap();
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
-            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 11, bitmapStream);
+            // modify quality as needed:
+            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, WIFI_QUALITY, bitmapStream);
+
             System.out.println("streaming");
 
             // Trying to handle breaking byte array up:
@@ -255,6 +261,9 @@ public class VideoStreamActivity extends AppCompatActivity {
             byte[] bitmapByteArray = bitmapStream.toByteArray();
             if (bitmapByteArray.length < 32768) {
                 networkLayer.sendBytes(bitmapByteArray);
+            }
+            else {
+                System.out.println("DROPPING PACKET");
             }
 
             //networkLayer.sendBytes(temp); // this will need to be changed to bitmapByteArray when this is done
