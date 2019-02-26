@@ -218,7 +218,7 @@ public class NCNetworkConnection {
         int maxBytes = ConnectionsClient.MAX_BYTES_DATA_SIZE - SerialMessageHeader.BYTE_SIZE;
         //try {
 
-            if (bytes.length < maxBytes) {
+            if (bytes.length < maxBytes - 1) {
                 sendBytes(header, bytes, endpointIds);
                 return;
             }

@@ -124,6 +124,7 @@ public class VideoStreamActivity extends AppCompatActivity {
         textureView.setSurfaceTextureListener(textureListener);
 
         networkServiceConnection = getNetworkServiceConnection();
+
     }
 
     @Override
@@ -234,9 +235,8 @@ public class VideoStreamActivity extends AppCompatActivity {
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
             // modify quality as needed:
-            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, WIFI_QUALITY, bitmapStream);
-
-            System.out.println("streaming");
+            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 11, bitmapStream);
+            System.out.println("Streaming "  + bitmapStream.size());
 
             // Trying to handle breaking byte array up:
             /*byte[] bitmapByteArray = new byte[bitmapStream.size() + 1];
