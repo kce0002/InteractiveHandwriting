@@ -229,21 +229,11 @@ public class VideoStreamActivity extends AppCompatActivity {
             Bitmap textureViewBitmap = textureView.getBitmap();
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
-            // Trials:
-            //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 0, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 0, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 25, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 25, bitmapStream);
             textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 11, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 50, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 75, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 75, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bitmapStream);
-            //textureViewBitmap.compress(Bitmap.CompressFormat.PNG, 100, bitmapStream);
             System.out.println("streaming");
 
             // Trying to handle breaking byte array up:
-            byte[] bitmapByteArray = new byte[bitmapStream.size() + 1];
+            /*byte[] bitmapByteArray = new byte[bitmapStream.size() + 1];
             byte[] temp = bitmapStream.toByteArray();
 
             // Check size
@@ -259,8 +249,15 @@ public class VideoStreamActivity extends AppCompatActivity {
             }
 
             // need a loop to send the chunks of data
+            */
 
-            networkLayer.sendBytes(temp); // this will need to be changed to bitmapByteArray when this is done
+            // Test dropping big packets:
+            byte[] bitmapByteArray = bitmapStream.toByteArray();
+            if (bitmapByteArray.length < 32768) {
+                networkLayer.sendBytes(bitmapByteArray);
+            }
+
+            //networkLayer.sendBytes(temp); // this will need to be changed to bitmapByteArray when this is done
         }
     };
 
