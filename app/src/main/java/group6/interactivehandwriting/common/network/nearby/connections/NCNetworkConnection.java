@@ -96,14 +96,6 @@ public class NCNetworkConnection {
 
             @Override
             public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate update) {
-//                if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
-//                    long payloadId = update.getPayloadId();
-//                    Payload payload = incomingFilePayloads.remove(payloadId);
-//                    completedFilePayloads.put(payloadId, payload);
-//                    if (payload.getType() == Payload.Type.FILE) {
-//                        manager.receiveFile(payloadId);
-//                    }
-//                }
 
             }
         };
@@ -244,42 +236,6 @@ public class NCNetworkConnection {
 
 
         }
-
-
-
-
-//        int index = 0;
-//        int mod = 0;
-//        int maxBytes = ConnectionsClient.MAX_BYTES_DATA_SIZE - SerialMessageHeader.BYTE_SIZE;
-//        //try {
-//
-//            if (bytes.length < maxBytes - 1) {
-//                sendBytes(header, bytes, endpointIds);
-//                return;
-//            }
-//            byte[] bytesToSend = new byte[maxBytes];
-//            for (int i = 0; i < bytes.length; i++) {
-//                if (i == maxBytes) {
-//                    sendBytes(header, bytesToSend, endpointIds);
-//                    if (bytes.length - i < maxBytes) {
-//                        bytesToSend = new byte[bytes.length - i];
-//                    } else {
-//                        bytesToSend = new byte[maxBytes];
-//                    }
-//                }
-//                index = i;
-//                mod = i % maxBytes;
-//                System.out.println("i = " + index);
-//                System.out.println("mod = " + mod);
-//                bytesToSend[i] = bytes[i % maxBytes];
-//            }
-//            sendBytes(header, bytesToSend, endpointIds);
-//        //} catch (IndexOutOfBoundsException e) {
-//           // System.out.println("index = " + index);
-//            //System.out.println("mod = " + mod);
-//            //System.out.println("Maxbytes = " + maxBytes);
-//            //e.printStackTrace();
-//        //}
     }
 
     public void sendFile(Payload filePayload, List<String> endpointIds) {

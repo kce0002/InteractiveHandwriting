@@ -235,45 +235,11 @@ public class VideoStreamActivity extends AppCompatActivity {
             Bitmap textureViewBitmap = textureView.getBitmap();
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
-            // modify quality as needed: 11
             textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bitmapStream);
             System.out.println("Streaming "  + bitmapStream.size());
             byte[] bitmapByteArray = bitmapStream.toByteArray();
 
             networkLayer.sendBytes(bitmapByteArray);
-            // Trying to handle breaking byte array up:
-            /*byte[] bitmapByteArray = new byte[bitmapStream.size() + 1];
-            byte[] temp = bitmapStream.toByteArray();
-
-            // Check size
-            if (bitmapStream.size() > 32767) {
-                bitmapByteArray[0] = 1;
-            }
-            else {
-                bitmapByteArray[0] = 0;
-            }
-
-            for (int i = 0; i < temp.length; i++) {
-                bitmapByteArray[i + 1] = temp[i];
-            }
-
-            // need a loop to send the chunks of data
-            */
-
-
-
-            // Test dropping big packets:
-            /*byte[] bitmapByteArray = bitmapStream.toByteArray();
-            if (bitmapByteArray.length < 32768) {
-                networkLayer.sendBytes(bitmapByteArray);
-                test = false;
-            }
-            else {
-                System.out.println("DROPPING PACKET");
-                test = true;
-            }*/
-
-            //networkLayer.sendBytes(temp); // this will need to be changed to bitmapByteArray when this is done
         }
     };
 
