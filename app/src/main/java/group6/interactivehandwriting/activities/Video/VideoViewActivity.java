@@ -78,10 +78,10 @@ public class VideoViewActivity extends AppCompatActivity {
         }
         else if (header.getBigData() == (byte) 1) {
             for (int i = 0; i < frameBytes.length; i++) {
-                /*if (frameBytes[i] != 0) {
+                if (frameBytes[i] != 0) {
+                    byteArrayList.add(frameBytes[i]);
+                }
 
-                }*/
-                byteArrayList.add(frameBytes[i]);
             }
         }
         else if (header.getBigData() == (byte) 2) {
