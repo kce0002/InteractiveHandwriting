@@ -350,6 +350,7 @@ public class RoomActivity extends AppCompatActivity {
     public void onBackPressed() {
         ncNetworkConnection.stopAdvertising();
         ncNetworkConnection.discover();
+        super.onBackPressed();
     }
 
 }
