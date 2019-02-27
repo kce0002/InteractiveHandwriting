@@ -48,6 +48,9 @@ public class SerialMessageHeader implements NetworkSerializable<SerialMessageHea
         return this;
     }
 
+    // 0 - array size is less than max
+    // 1 - part of larger set of data
+    // 2 - last piece of larger data set
     public SerialMessageHeader withBigData(byte bigData) {
         this.bigData = bigData;
         return this;
