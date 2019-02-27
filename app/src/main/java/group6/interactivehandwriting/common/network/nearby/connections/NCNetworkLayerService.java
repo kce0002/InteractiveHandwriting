@@ -303,6 +303,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
         switch(header.getType()) {
             case VIDEO_STREAM:
                 videoViewActivity.showVideo(header, dataSection);
+                break;
             case START_DRAW:
                 sendActionToCanvasManager(id, StartDrawActionMessage.actionFromBytes(dataSection));
                 break;

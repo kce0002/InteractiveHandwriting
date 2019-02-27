@@ -236,7 +236,7 @@ public class VideoStreamActivity extends AppCompatActivity {
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
             // modify quality as needed: 11
-            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 25, bitmapStream);
+            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bitmapStream);
             System.out.println("Streaming "  + bitmapStream.size());
             byte[] bitmapByteArray = bitmapStream.toByteArray();
 

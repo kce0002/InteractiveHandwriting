@@ -213,26 +213,36 @@ public class NCNetworkConnection {
     }
 
     public void sendMessage(SerialMessageHeader header, byte[] bytes, List<String> endpointIds) {
-        if (bytes.length < ConnectionsClient.MAX_BYTES_DATA_SIZE - header.getByteBufferSize()) {
+        int maxBytes = ConnectionsClient.MAX_BYTES_DATA_SIZE - SerialMessageHeader.BYTE_SIZE;
+        if (bytes.length <= maxBytes) {
             header.withBigData((byte) 0);
             sendBytes(header, bytes, endpointIds);
         }
         else {
-            byte[] b = new byte[32747];
+            byte[] bytesToSend = new byte[maxBytes];
             int count = 0;
             for (int i = 0; i < bytes.length; i++) {
-                b[count++] = bytes[i];
-                if (count == 32747) {
+                bytesToSend[count] = bytes[i];
+                count++;
+
+                if (count == maxBytes) {
                     header.withBigData((byte) 1);
-                    sendBytes(header, b, endpointIds);
+                    sendBytes(header, bytesToSend, endpointIds);
                     count = 0;
-                    b = new byte[32747];
-                }
-                else if (i == bytes.length - 1) {
-                    header.withBigData((byte) 2);
-                    sendBytes(header, b, endpointIds);
+
+                    if ((bytes.length - i - 1 <= maxBytes)) {
+                        bytesToSend = new byte[bytes.length - i - 1];
+                    }
+                    else {
+                        bytesToSend = new byte[maxBytes];
+                    }
+
                 }
             }
+            header.withBigData((byte) 2);
+            sendBytes(header, bytesToSend, endpointIds);
+
+
         }
 
 
