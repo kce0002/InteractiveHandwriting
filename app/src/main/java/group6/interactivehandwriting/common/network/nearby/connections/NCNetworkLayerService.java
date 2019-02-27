@@ -303,7 +303,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
         switch(header.getType()) {
             case VIDEO_STREAM:
                 if (videoViewActivity != null) {
-                    videoViewActivity.showVideo(header, dataSection);
+                    String username = routingTable.getProfile(header.getDeviceId()).username;
+                    videoViewActivity.showVideo(header, dataSection, username);
                 }
                 break;
             case START_DRAW:
