@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.nearby.Nearby;
@@ -22,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +32,7 @@ import java.util.Set;
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
+import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.Action;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.DrawableAction;
@@ -59,6 +63,7 @@ import group6.interactivehandwriting.common.network.nearby.connections.message.s
 
 // TODO we should definitely create an object that encapsulates the HEADER, DATA section pair for byte[]
 public class NCNetworkLayerService extends NetworkLayerService {
+
     private static boolean isActive = false;
 
     private NCRoutingTable routingTable;
@@ -71,8 +76,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private DrawActionHandle drawActionHandle;
 
-
     private RoomActivity roomActivity;
+    private VideoViewActivity videoViewActivity;
 
     public boolean onConnectionInitiated(String endpointId) {
         Toast.makeText(context, "Device found with id " + endpointId, Toast.LENGTH_SHORT).show();
@@ -87,6 +92,10 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     public void onDisconnected(String endpointId) {
         Toast.makeText(context, "Device disconnected with id " + endpointId, Toast.LENGTH_SHORT).show();
+    }
+
+    public NCNetworkConnection getNCNetworkConnection() {
+        return networkConnection;
     }
 
     @Override
@@ -120,6 +129,11 @@ public class NCNetworkLayerService extends NetworkLayerService {
     @Override
     public void setRoomActivity(RoomActivity roomActivity) {
         this.roomActivity = roomActivity;
+    }
+
+    @Override
+    public void setVideoViewActivity(VideoViewActivity videoViewActivity) {
+        this.videoViewActivity = videoViewActivity;
     }
 
     @Override
@@ -175,10 +189,24 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
+    public void sendBytes(byte[] bytes) {
+        SerialMessageHeader header = new SerialMessageHeader()
+                .withId(myProfile.deviceId)
+                .withRoomNumber(myRoom.getRoomNumber())
+                .withSequenceNumber(SerialMessageHeader.getNextSequenceNumber())
+                .withType(NetworkMessageType.VIDEO_STREAM);
+        networkConnection.sendMessage(header, bytes, routingTable.getNeighborEndpoints());
+    }
+
+    @Override
     public void sendFile(ParcelFileDescriptor fd) {
         Payload filePayload = Payload.fromFile(fd);
         networkConnection.sendFile(filePayload, routingTable.getNeighborEndpoints());
+    }
 
+    @Override
+    public void sendStream(Payload streamPayload) {
+        networkConnection.sendStream(streamPayload, routingTable.getNeighborEndpoints());
     }
 
     @Override
@@ -238,6 +266,9 @@ public class NCNetworkLayerService extends NetworkLayerService {
             case Payload.Type.BYTES:
                 handleBytesPayload(endpoint, payload.asBytes());
                 break;
+            case Payload.Type.STREAM:
+                handleStreamPayload(endpoint, payload);
+                break;
             default:
                 break;
         }
@@ -264,9 +295,18 @@ public class NCNetworkLayerService extends NetworkLayerService {
         }
     }
 
+    private void handleStreamPayload(String endpoint, Payload payload) {
+    }
+
     private void dispatchRoomMessage(String endpoint, SerialMessageHeader header, byte[] dataSection) {
         long id = header.getDeviceId();
         switch(header.getType()) {
+            case VIDEO_STREAM:
+                if (videoViewActivity != null) {
+                    String username = routingTable.getProfile(header.getDeviceId()).username;
+                    videoViewActivity.showVideo(header, dataSection, username);
+                }
+                break;
             case START_DRAW:
                 sendActionToCanvasManager(id, StartDrawActionMessage.actionFromBytes(dataSection));
                 break;
