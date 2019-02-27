@@ -302,7 +302,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
         long id = header.getDeviceId();
         switch(header.getType()) {
             case VIDEO_STREAM:
-                videoViewActivity.showVideo(dataSection);
+                videoViewActivity.showVideo(header, dataSection);
             case START_DRAW:
                 sendActionToCanvasManager(id, StartDrawActionMessage.actionFromBytes(dataSection));
                 break;

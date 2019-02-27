@@ -15,12 +15,14 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
+import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessageHeader;
 
 
 public class VideoViewActivity extends AppCompatActivity {
@@ -28,6 +30,7 @@ public class VideoViewActivity extends AppCompatActivity {
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
     public ImageView imageView;
+    ArrayList<Byte> byteArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,7 @@ public class VideoViewActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
 
         networkServiceConnection = getNetworkServiceConnection();
+        byteArrayList = new ArrayList<>();
     }
 
     @Override
@@ -67,9 +71,31 @@ public class VideoViewActivity extends AppCompatActivity {
         networkLayer.setVideoViewActivity(this);
     }
 
-    public void showVideo(byte[] frameBytes) {
-        Bitmap bmp = BitmapFactory.decodeByteArray(frameBytes, 0, frameBytes.length);
-        imageView.setImageBitmap(bmp);
+    public void showVideo(SerialMessageHeader header, byte[] frameBytes) {
+        if (header.getBigData() == (byte) 0) {
+            Bitmap bmp = BitmapFactory.decodeByteArray(frameBytes, 0, frameBytes.length);
+            imageView.setImageBitmap(bmp);
+        }
+        else if (header.getBigData() == (byte) 1) {
+            for (int i = 0; i < frameBytes.length; i++) {
+                /*if (frameBytes[i] != 0) {
+
+                }*/
+                byteArrayList.add(frameBytes[i]);
+            }
+        }
+        else if (header.getBigData() == (byte) 2) {
+            for (int i = 0; i < frameBytes.length; i++) {
+                byteArrayList.add(frameBytes[i]);
+            }
+            byte[] b = new byte[byteArrayList.size()];
+            for (int i = 0; i < b.length; i++) {
+                b[i] = byteArrayList.get(i);
+            }
+            Bitmap bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
+            imageView.setImageBitmap(bmp);
+        }
+
     }
 
 }

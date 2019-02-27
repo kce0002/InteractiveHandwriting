@@ -9,11 +9,12 @@ import group6.interactivehandwriting.common.network.nearby.connections.message.N
  */
 
 public class SerialMessageHeader implements NetworkSerializable<SerialMessageHeader> {
-    public static final int BYTE_SIZE = 20;
+    public static final int BYTE_SIZE = 21;
     private NetworkMessageType type;
     private int roomNumber;
     private int sequenceNumber;
     private long deviceId;
+    private byte bigData;
 
     private static int globalSequenceNumber;
 
@@ -47,6 +48,11 @@ public class SerialMessageHeader implements NetworkSerializable<SerialMessageHea
         return this;
     }
 
+    public SerialMessageHeader withBigData(byte bigData) {
+        this.bigData = bigData;
+        return this;
+    }
+
     @Override
     public byte[] toBytes() {
         ByteBuffer buffer = ByteBuffer.allocate(getByteBufferSize());
@@ -54,6 +60,7 @@ public class SerialMessageHeader implements NetworkSerializable<SerialMessageHea
         buffer.putInt(roomNumber);
         buffer.putInt(SerialMessageHeader.getNextSequenceNumber());
         buffer.putLong(deviceId);
+        buffer.put(bigData);
         return buffer.array();
     }
 
@@ -64,6 +71,7 @@ public class SerialMessageHeader implements NetworkSerializable<SerialMessageHea
         roomNumber = buffer.getInt();
         sequenceNumber = buffer.getInt();
         deviceId = buffer.getLong();
+        bigData = buffer.get();
         return this;
     }
 
@@ -82,4 +90,8 @@ public class SerialMessageHeader implements NetworkSerializable<SerialMessageHea
     }
 
     public int getRoomNumber() { return roomNumber; }
+
+    public byte getBigData() {
+        return bigData;
+    }
 }

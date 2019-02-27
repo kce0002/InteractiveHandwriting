@@ -213,38 +213,63 @@ public class NCNetworkConnection {
     }
 
     public void sendMessage(SerialMessageHeader header, byte[] bytes, List<String> endpointIds) {
-        int index = 0;
-        int mod = 0;
-        int maxBytes = ConnectionsClient.MAX_BYTES_DATA_SIZE - SerialMessageHeader.BYTE_SIZE;
-        //try {
-
-            if (bytes.length < maxBytes - 1) {
-                sendBytes(header, bytes, endpointIds);
-                return;
-            }
-            byte[] bytesToSend = new byte[maxBytes];
+        if (bytes.length < ConnectionsClient.MAX_BYTES_DATA_SIZE - header.getByteBufferSize()) {
+            header.withBigData((byte) 0);
+            sendBytes(header, bytes, endpointIds);
+        }
+        else {
+            byte[] b = new byte[32747];
+            int count = 0;
             for (int i = 0; i < bytes.length; i++) {
-                if (i == maxBytes) {
-                    sendBytes(header, bytesToSend, endpointIds);
-                    if (bytes.length - i < maxBytes) {
-                        bytesToSend = new byte[bytes.length - i];
-                    } else {
-                        bytesToSend = new byte[maxBytes];
-                    }
+                b[count++] = bytes[i];
+                if (count == 32747) {
+                    header.withBigData((byte) 1);
+                    sendBytes(header, b, endpointIds);
+                    count = 0;
+                    b = new byte[32747];
                 }
-                index = i;
-                mod = i % maxBytes;
-                System.out.println("i = " + index);
-                System.out.println("mod = " + mod);
-                bytesToSend[i] = bytes[i % maxBytes];
+                else if (i == bytes.length - 1) {
+                    header.withBigData((byte) 2);
+                    sendBytes(header, b, endpointIds);
+                }
             }
-            sendBytes(header, bytesToSend, endpointIds);
-        //} catch (IndexOutOfBoundsException e) {
-           // System.out.println("index = " + index);
-            //System.out.println("mod = " + mod);
-            //System.out.println("Maxbytes = " + maxBytes);
-            //e.printStackTrace();
-        //}
+        }
+
+
+
+
+//        int index = 0;
+//        int mod = 0;
+//        int maxBytes = ConnectionsClient.MAX_BYTES_DATA_SIZE - SerialMessageHeader.BYTE_SIZE;
+//        //try {
+//
+//            if (bytes.length < maxBytes - 1) {
+//                sendBytes(header, bytes, endpointIds);
+//                return;
+//            }
+//            byte[] bytesToSend = new byte[maxBytes];
+//            for (int i = 0; i < bytes.length; i++) {
+//                if (i == maxBytes) {
+//                    sendBytes(header, bytesToSend, endpointIds);
+//                    if (bytes.length - i < maxBytes) {
+//                        bytesToSend = new byte[bytes.length - i];
+//                    } else {
+//                        bytesToSend = new byte[maxBytes];
+//                    }
+//                }
+//                index = i;
+//                mod = i % maxBytes;
+//                System.out.println("i = " + index);
+//                System.out.println("mod = " + mod);
+//                bytesToSend[i] = bytes[i % maxBytes];
+//            }
+//            sendBytes(header, bytesToSend, endpointIds);
+//        //} catch (IndexOutOfBoundsException e) {
+//           // System.out.println("index = " + index);
+//            //System.out.println("mod = " + mod);
+//            //System.out.println("Maxbytes = " + maxBytes);
+//            //e.printStackTrace();
+//        //}
     }
 
     public void sendFile(Payload filePayload, List<String> endpointIds) {
