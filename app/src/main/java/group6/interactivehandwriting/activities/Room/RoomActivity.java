@@ -162,8 +162,6 @@ public class RoomActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unbindService(networkServiceConnection);
-        ncNetworkConnection.stopAdvertising();
-        ncNetworkConnection.discover();
     }
 
     public void showDocument(View view) {
@@ -347,5 +345,11 @@ public class RoomActivity extends AppCompatActivity {
             RoomViewActionUtility.ChangeWidth((float)seekbar.getProgress());
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        ncNetworkConnection.stopAdvertising();
+        ncNetworkConnection.discover();
+    }
 
 }

@@ -71,7 +71,9 @@ public class VideoViewActivity extends AppCompatActivity {
         networkLayer.setVideoViewActivity(this);
     }
 
-    public void showVideo(SerialMessageHeader header, byte[] frameBytes) {
+    public void showVideo(SerialMessageHeader header, byte[] frameBytes, String username) {
+
+        this.setTitle(username + "'s Stream");
         if (header.getBigData() == (byte) 0) {
             Bitmap bmp = BitmapFactory.decodeByteArray(frameBytes, 0, frameBytes.length);
             imageView.setImageBitmap(bmp);
