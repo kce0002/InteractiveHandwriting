@@ -34,6 +34,7 @@ public class CanvasManager implements DrawActionHandle {
     private Path mPath;
     private Paint mPaint;
     private float mX, mY;
+    private Canvas mCanvas;
 
     private static final float TOUCH_TOLERANCE = 4;
 
@@ -59,7 +60,7 @@ public class CanvasManager implements DrawActionHandle {
 
     public void updateSize(int w, int h) {
         canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-//        mCanvas = new Canvas(canvasBitmap);
+        mCanvas = new Canvas(canvasBitmap);
     }
 
     @Override
@@ -131,7 +132,7 @@ public class CanvasManager implements DrawActionHandle {
         mPath.moveTo(x, y);
         mX = x;
         mY = y;
-//        mCanvas.drawPath(mPath, mPaint);
+        mCanvas.drawPath(mPath, mPaint);
     }
     public void touch_move(float x, float y) {
         float dx = Math.abs(x - mX);
@@ -141,12 +142,12 @@ public class CanvasManager implements DrawActionHandle {
             mX = x;
             mY = y;
         }
-//        mCanvas.drawPath(mPath, mPaint);
+        mCanvas.drawPath(mPath, mPaint);
     }
     public void touch_up() {
         mPath.lineTo(mX, mY);
         // commit the path to our offscreen
-//        mCanvas.drawPath(mPath, mPaint);
+        mCanvas.drawPath(mPath, mPaint);
         // kill this so we don't double draw
         mPath.reset();
     }
@@ -155,9 +156,9 @@ public class CanvasManager implements DrawActionHandle {
         canvas.drawColor(Color.TRANSPARENT);
 
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasBitmapPaint);
-        for (DrawableRecord record : records) {
-            record.drawable.draw(canvas);
-        }
+//        for (DrawableRecord record : records) {
+//            record.drawable.draw(canvas);
+//        }
     }
 
     public void undo(Profile user) {
