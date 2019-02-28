@@ -3,6 +3,7 @@ package group6.interactivehandwriting.activities.Room.views;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -109,22 +110,22 @@ public class RoomView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        scalePointX = documentView.getPivotX();
-        scalePointY = documentView.getPivotY();
-        canvas.save();
-        canvas.scale(mScaleFactor, mScaleFactor, scalePointX, scalePointY);
-        canvas.translate(mPosX, mPosY);
-
-        documentView.setScaleX(mScaleFactor);
-        documentView.setScaleY(mScaleFactor);
-
-        documentView.animate()
-                .x(mPosX * mScaleFactor)
-                .y(mPosY * mScaleFactor)
-                .setDuration(0)
-                .start();
+//        super.onDraw(canvas);
+//
+//        scalePointX = documentView.getPivotX();
+//        scalePointY = documentView.getPivotY();
+//        canvas.save();
+//        canvas.scale(mScaleFactor, mScaleFactor, scalePointX, scalePointY);
+//        canvas.translate(mPosX, mPosY);
+//
+//        documentView.setScaleX(mScaleFactor);
+//        documentView.setScaleY(mScaleFactor);
+//
+//        documentView.animate()
+//                .x(mPosX * mScaleFactor)
+//                .y(mPosY * mScaleFactor)
+//                .setDuration(0)
+//                .start();
 
 
         // Draw the center of the screen
@@ -133,14 +134,29 @@ public class RoomView extends View {
 
         canvasManager.update(canvas);
 
-        canvas.restore();
+//        canvas.restore();
     }
 
     public boolean onTouchEvent(MotionEvent event) {
         switch (touchState) {
             case DRAW: /* Draw */
-                drawEvent(event);
-                break;
+//                x = ((x - scalePointX) / mScaleFactor) - mPosX + scalePointX;
+//                y = ((y - scalePointY) / mScaleFactor) - mPosY + scalePointY;
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        canvasManager.touch_start(event.getX(), event.getY());
+                        invalidate();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        canvasManager.touch_move(event.getX(), event.getY());
+                        invalidate();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        canvasManager.touch_up();
+                        invalidate();
+                        break;
+                }
+
             case RESIZE: /* Resize */
                 mRoomScaleDetector.onTouchEvent(event);
 
@@ -188,67 +204,38 @@ public class RoomView extends View {
                         invalidate();
                     }
                 }
-                break;
-            default:
-                break;
         }
         return true;
     }
 
-    private void drawEvent(MotionEvent event) {
-        performClick();
-        float x = event.getX();
-        float y = event.getY();
-        x = ((x - scalePointX) / mScaleFactor) - mPosX + scalePointX;
-        y = ((y - scalePointY) / mScaleFactor) - mPosY + scalePointY;
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touchStarted(x, y);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touchMoved(x, y);
-                break;
-            case MotionEvent.ACTION_UP:
-                touchReleased();
-                break;
-            default:
-                break;
-        }
-    }
-
-    @Override
-    public boolean performClick() {
-        return super.performClick();
-    }
-
-    private void touchStarted(float x, float y) {
-        StartDrawAction action = RoomViewActionUtility.touchStarted(x, y);
-        canvasManager.handleDrawAction(profile, action);
-
-        if (networkLayer != null) {
-            networkLayer.startDraw(action);
-        }
-    }
-
-    private void touchMoved(float x, float y) {
-        if (RoomViewActionUtility.didTouchMove(x, y, TOUCH_TOLERANCE)) {
-            MoveDrawAction action = RoomViewActionUtility.touchMoved(x, y);
-            canvasManager.handleDrawAction(profile, action);
-
-            if (networkLayer != null) {
-                networkLayer.moveDraw(action);
-            }
-        }
-    }
-
-    private void touchReleased() {
-        EndDrawAction action = RoomViewActionUtility.touchReleased();
-        canvasManager.handleDrawAction(profile, action);
-
-        if (networkLayer != null) {
-            networkLayer.endDraw(action);
-        }
-    }
+//    private void touchStarted(float x, float y) {
+//        StartDrawAction action = RoomViewActionUtility.touchStarted(x, y);
+//        canvasManager.handleDrawAction(profile, action);
+//
+//        if (networkLayer != null) {
+//            networkLayer.startDraw(action);
+//        }
+//    }
+//
+//    private void touchMoved(float x, float y) {
+//        if (RoomViewActionUtility.didTouchMove(x, y, TOUCH_TOLERANCE)) {
+//            MoveDrawAction action = RoomViewActionUtility.touchMoved(x, y);
+//            canvasManager.handleDrawAction(profile, action);
+//
+//            if (networkLayer != null) {
+//                networkLayer.moveDraw(action);
+//            }
+//        }
+//    }
+//
+//    private void touchReleased() {
+//        EndDrawAction action = RoomViewActionUtility.touchReleased();
+//        canvasManager.handleDrawAction(profile, action);
+//
+//        if (networkLayer != null) {
+//            networkLayer.endDraw(action);
+//        }
+//    }
 
     private class RoomScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
