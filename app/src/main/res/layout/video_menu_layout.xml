@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.Video.VideoMenuActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/startStream"
+            android:layout_width="@android:dimen/thumbnail_width"
+            android:layout_height="@android:dimen/notification_large_icon_height"
+            android:layout_marginBottom="50dp"
+            android:onClick="startStream"
+            android:text="@string/start_stream"
+            tools:layout_editor_absoluteX="156dp"
+            tools:layout_editor_absoluteY="132dp" />
+
+        <Button
+            android:id="@+id/joinStream"
+            android:layout_width="@android:dimen/thumbnail_width"
+            android:layout_height="@android:dimen/notification_large_icon_height"
+            android:onClick="joinStream"
+            android:text="@string/join_stream"
+            tools:layout_editor_absoluteX="156dp" />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

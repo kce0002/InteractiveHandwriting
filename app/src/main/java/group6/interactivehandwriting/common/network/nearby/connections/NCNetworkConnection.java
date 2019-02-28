@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import group6.interactivehandwriting.common.app.Profile;
+import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessage;
+import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessageHeader;
 
 // TODO resolve if certain network components need their own thread
 public class NCNetworkConnection {
@@ -40,10 +42,10 @@ public class NCNetworkConnection {
     public void begin(Context context) {
         Log.v(V_TAG, "Starting network service");
         this.connectionClient = Nearby.getConnectionsClient(context);
-        advertise();
+        discover();
     }
 
-    private void advertise() {
+    public void advertise() {
         Task<Void> advertiseTask = connectionClient.startAdvertising(
                 deviceName,
                 SERVICE_ID,
@@ -52,6 +54,14 @@ public class NCNetworkConnection {
         );
         advertiseTask.addOnSuccessListener(getAdvertisingSucceededCallback());
         advertiseTask.addOnFailureListener(getAdvertisingFailedCallback());
+    }
+
+    public void stopAdvertising() {
+        connectionClient.stopAdvertising();
+    }
+
+    public void stopDiscovering() {
+        connectionClient.stopDiscovery();
     }
 
     private ConnectionLifecycleCallback getConnectionLifeCycleCallback() {
@@ -86,14 +96,6 @@ public class NCNetworkConnection {
 
             @Override
             public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate update) {
-//                if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
-//                    long payloadId = update.getPayloadId();
-//                    Payload payload = incomingFilePayloads.remove(payloadId);
-//                    completedFilePayloads.put(payloadId, payload);
-//                    if (payload.getType() == Payload.Type.FILE) {
-//                        manager.receiveFile(payloadId);
-//                    }
-//                }
 
             }
         };
@@ -110,7 +112,6 @@ public class NCNetworkConnection {
             @Override
             public void onSuccess(Void aVoid) {
                 // TODO what happens when the advertising begins successfully
-                discover();
             }
         };
     }
@@ -124,7 +125,7 @@ public class NCNetworkConnection {
         };
     }
 
-    private void discover() {
+    public void discover() {
         Task<Void> discoverTask = connectionClient.startDiscovery(
                 SERVICE_ID,
                 getEndpointDiscoveryCallback(),
@@ -203,7 +204,48 @@ public class NCNetworkConnection {
         connectionClient.sendPayload(endpointIds, message);
     }
 
+    public void sendMessage(SerialMessageHeader header, byte[] bytes, List<String> endpointIds) {
+        int maxBytes = ConnectionsClient.MAX_BYTES_DATA_SIZE - SerialMessageHeader.BYTE_SIZE;
+        if (bytes.length <= maxBytes) {
+            header.withBigData((byte) 0);
+            sendBytes(header, bytes, endpointIds);
+        }
+        else {
+            byte[] bytesToSend = new byte[maxBytes];
+            int count = 0;
+            for (int i = 0; i < bytes.length; i++) {
+                bytesToSend[count] = bytes[i];
+                count++;
+
+                if (count == maxBytes) {
+                    header.withBigData((byte) 1);
+                    sendBytes(header, bytesToSend, endpointIds);
+                    count = 0;
+
+                    if ((bytes.length - i - 1 <= maxBytes)) {
+                        bytesToSend = new byte[bytes.length - i - 1];
+                    }
+                    else {
+                        bytesToSend = new byte[maxBytes];
+                    }
+
+                }
+            }
+            header.withBigData((byte) 2);
+            sendBytes(header, bytesToSend, endpointIds);
+
+
+        }
+    }
+
     public void sendFile(Payload filePayload, List<String> endpointIds) {
         connectionClient.sendPayload(endpointIds, filePayload);
+    }
+
+    public void sendBytes(SerialMessageHeader header, byte[] bytesToSend, List<String> endpointIds) {
+        SerialMessage message = new SerialMessage().withHeader(header).withData(bytesToSend);
+        Payload bytesPayload = Payload.fromBytes(message.toBytes());
+        connectionClient.sendPayload(endpointIds, bytesPayload);
+
     }
 }

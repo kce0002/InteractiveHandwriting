@@ -3,38 +3,48 @@ package group6.interactivehandwriting.common.network;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.gms.nearby.connection.Payload;
+
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.EndDrawAction;
 import group6.interactivehandwriting.common.app.actions.draw.MoveDrawAction;
 import group6.interactivehandwriting.common.app.actions.draw.StartDrawAction;
 import group6.interactivehandwriting.common.app.Profile;
 import group6.interactivehandwriting.common.app.rooms.Room;
+import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
 /**
  * Created by JakeL on 9/22/18.
  */
 
 public interface NetworkLayer {
-    public void begin(final Profile profile);
-    public Profile getMyProfile();
+    void begin(final Profile profile);
+    Profile getMyProfile();
 
-    public void setRoomActivity(RoomActivity roomActivity);
+    void setRoomActivity(RoomActivity roomActivity);
+    void setVideoViewActivity(VideoViewActivity videoViewActivity);
 
-    public Set<Room> getRooms();
-    public void joinRoom(final Profile profile, final Room room);
-    public void synchronizeRoom();
-    public void exitRoom();
+    NCNetworkConnection getNCNetworkConnection();
 
-    public void sendFile(ParcelFileDescriptor fd);
+    Set<Room> getRooms();
+    void joinRoom(final Profile profile, final Room room);
+    void synchronizeRoom();
+    void exitRoom();
 
-    public void receiveDrawActions(final DrawActionHandle handle);
-    public void startDraw(final StartDrawAction action);
-    public void moveDraw(final MoveDrawAction action);
-    public void endDraw(final EndDrawAction action);
-    public void undo(Profile profile);
+    void sendBytes(byte[] bytes, NetworkMessageType networkMessageType);
+    void sendFile(ParcelFileDescriptor fd);
+
+    void receiveDrawActions(final DrawActionHandle handle);
+    void startDraw(final StartDrawAction action);
+    void moveDraw(final MoveDrawAction action);
+    void endDraw(final EndDrawAction action);
+    void undo(Profile profile);
 }

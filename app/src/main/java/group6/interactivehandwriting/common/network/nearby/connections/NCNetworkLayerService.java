@@ -1,34 +1,19 @@
 package group6.interactivehandwriting.common.network.nearby.connections;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
-import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.Payload;
-import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
-import com.shockwave.pdfium.PdfDocument;
-import com.shockwave.pdfium.PdfiumCore;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
-import group6.interactivehandwriting.activities.Room.views.DocumentView;
+import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.Action;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.DrawableAction;
@@ -59,6 +44,7 @@ import group6.interactivehandwriting.common.network.nearby.connections.message.s
 
 // TODO we should definitely create an object that encapsulates the HEADER, DATA section pair for byte[]
 public class NCNetworkLayerService extends NetworkLayerService {
+
     private static boolean isActive = false;
 
     private NCRoutingTable routingTable;
@@ -71,8 +57,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private DrawActionHandle drawActionHandle;
 
-
     private RoomActivity roomActivity;
+    private VideoViewActivity videoViewActivity;
 
     public boolean onConnectionInitiated(String endpointId) {
         Toast.makeText(context, "Device found with id " + endpointId, Toast.LENGTH_SHORT).show();
@@ -87,6 +73,10 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     public void onDisconnected(String endpointId) {
         Toast.makeText(context, "Device disconnected with id " + endpointId, Toast.LENGTH_SHORT).show();
+    }
+
+    public NCNetworkConnection getNCNetworkConnection() {
+        return networkConnection;
     }
 
     @Override
@@ -120,6 +110,11 @@ public class NCNetworkLayerService extends NetworkLayerService {
     @Override
     public void setRoomActivity(RoomActivity roomActivity) {
         this.roomActivity = roomActivity;
+    }
+
+    @Override
+    public void setVideoViewActivity(VideoViewActivity videoViewActivity) {
+        this.videoViewActivity = videoViewActivity;
     }
 
     @Override
@@ -175,10 +170,27 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
+    public void sendBytes(byte[] bytes, NetworkMessageType messageType) {
+        SerialMessageHeader header = new SerialMessageHeader()
+                .withId(myProfile.deviceId)
+                .withRoomNumber(myRoom.getRoomNumber())
+                .withSequenceNumber(SerialMessageHeader.getNextSequenceNumber())
+                .withType(messageType);
+        if (messageType == NetworkMessageType.VIDEO_STREAM) {
+            networkConnection.sendMessage(header, bytes, routingTable.getNeighborEndpoints());
+        }
+        else {
+            SerialMessage message = new SerialMessage();
+            header.withBigData((byte)0);
+            message.withHeader(header).withData(bytes);
+            networkConnection.sendBytes(header, bytes, routingTable.getNeighborEndpoints());
+        }
+    }
+
+    @Override
     public void sendFile(ParcelFileDescriptor fd) {
         Payload filePayload = Payload.fromFile(fd);
         networkConnection.sendFile(filePayload, routingTable.getNeighborEndpoints());
-
     }
 
     @Override
@@ -221,7 +233,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
                 .withId(myProfile.deviceId)
                 .withRoomNumber(myRoom.getRoomNumber())
                 .withSequenceNumber(SerialMessageHeader.getNextSequenceNumber())
-                .withType(data.getType());
+                .withType(data.getType())
+                .withBigData((byte)0);
 
         SerialMessage message = new SerialMessage();
         message.withHeader(header).withData(data);
@@ -266,7 +279,26 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private void dispatchRoomMessage(String endpoint, SerialMessageHeader header, byte[] dataSection) {
         long id = header.getDeviceId();
+        String username;
         switch(header.getType()) {
+            case STREAM_STARTED:
+                username = routingTable.getProfile(header.getDeviceId()).username;
+                Toast.makeText(context, "Stream started by " + username, Toast.LENGTH_LONG).show();
+                if (videoViewActivity != null) {
+                    videoViewActivity.setTitle(username + "'s Stream");
+                }
+                break;
+            case STREAM_ENDED:
+                username = routingTable.getProfile(header.getDeviceId()).username;
+                Toast.makeText(context, "Stream ended by " + username, Toast.LENGTH_LONG).show();
+                videoViewActivity.endViewing();
+                break;
+            case VIDEO_STREAM:
+                if (videoViewActivity != null) {
+                    username = routingTable.getProfile(header.getDeviceId()).username;
+                    videoViewActivity.showVideo(header, dataSection, username);
+                }
+                break;
             case START_DRAW:
                 sendActionToCanvasManager(id, StartDrawActionMessage.actionFromBytes(dataSection));
                 break;
