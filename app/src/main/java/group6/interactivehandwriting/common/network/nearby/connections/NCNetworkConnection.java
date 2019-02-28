@@ -242,11 +242,7 @@ public class NCNetworkConnection {
         connectionClient.sendPayload(endpointIds, filePayload);
     }
 
-    public void sendStream(Payload streamPayload, List<String> endpointIds) {
-        connectionClient.sendPayload(endpointIds, streamPayload);
-    }
-
-    private void sendBytes(SerialMessageHeader header, byte[] bytesToSend, List<String> endpointIds) {
+    public void sendBytes(SerialMessageHeader header, byte[] bytesToSend, List<String> endpointIds) {
         SerialMessage message = new SerialMessage().withHeader(header).withData(bytesToSend);
         Payload bytesPayload = Payload.fromBytes(message.toBytes());
         connectionClient.sendPayload(endpointIds, bytesPayload);

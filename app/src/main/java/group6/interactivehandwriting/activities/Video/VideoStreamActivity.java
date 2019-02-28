@@ -45,6 +45,7 @@ import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -66,8 +67,6 @@ import java.util.UUID;
 public class VideoStreamActivity extends AppCompatActivity {
 
     private TextureView textureView;
-    private boolean test;
-
 
     //Check state orientation of output image
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -124,8 +123,6 @@ public class VideoStreamActivity extends AppCompatActivity {
         textureView.setSurfaceTextureListener(textureListener);
 
         networkServiceConnection = getNetworkServiceConnection();
-
-        test = true;
     }
 
     @Override
@@ -136,6 +133,14 @@ public class VideoStreamActivity extends AppCompatActivity {
         NetworkLayerService.bindNetworkService(this, networkServiceConnection);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(networkServiceConnection);
+        byte emptyData[] = {0};
+        networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_ENDED);
+    }
+
     private ServiceConnection getNetworkServiceConnection() {
         return new ServiceConnection()
         {
@@ -143,6 +148,8 @@ public class VideoStreamActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
+                byte emptyData[] = {0};
+                networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
             }
 
             @Override
@@ -239,7 +246,7 @@ public class VideoStreamActivity extends AppCompatActivity {
             System.out.println("Streaming "  + bitmapStream.size());
             byte[] bitmapByteArray = bitmapStream.toByteArray();
 
-            networkLayer.sendBytes(bitmapByteArray);
+            networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
         }
     };
 
