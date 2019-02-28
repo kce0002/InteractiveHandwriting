@@ -5,6 +5,8 @@ import android.content.ServiceConnection;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -49,6 +51,12 @@ public class VideoViewActivity extends AppCompatActivity {
         Permissions.requestPermissions(this);
         NetworkLayerService.startNetworkService(this);
         NetworkLayerService.bindNetworkService(this, networkServiceConnection);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(networkServiceConnection);
     }
 
     private ServiceConnection getNetworkServiceConnection() {
@@ -96,6 +104,11 @@ public class VideoViewActivity extends AppCompatActivity {
             byteArrayList.clear();
         }
 
+    }
+
+    public void endViewing() {
+        this.setTitle("No users streaming");
+        imageView.setImageResource(android.R.color.transparent);
     }
 
 }

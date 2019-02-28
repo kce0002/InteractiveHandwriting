@@ -20,7 +20,7 @@ public class Profile {
 
     public Profile() {
         deviceId = 0;
-        username = "";
+        username = "username";
     }
 
     @Override

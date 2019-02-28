@@ -19,6 +19,7 @@ import group6.interactivehandwriting.common.app.actions.draw.StartDrawAction;
 import group6.interactivehandwriting.common.app.Profile;
 import group6.interactivehandwriting.common.app.rooms.Room;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
 /**
  * Created by JakeL on 9/22/18.
@@ -38,9 +39,8 @@ public interface NetworkLayer {
     void synchronizeRoom();
     void exitRoom();
 
-    void sendBytes(byte[] bytes);
+    void sendBytes(byte[] bytes, NetworkMessageType networkMessageType);
     void sendFile(ParcelFileDescriptor fd);
-    void sendStream(Payload streamPayload);
 
     void receiveDrawActions(final DrawActionHandle handle);
     void startDraw(final StartDrawAction action);
