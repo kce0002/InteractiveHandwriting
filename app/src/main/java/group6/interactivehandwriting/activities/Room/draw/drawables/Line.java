@@ -5,6 +5,8 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -50,7 +52,7 @@ public class Line extends DrawableCanvasItem {
 
         paint = new Paint();
         if (action.isEraser()) {
-            setColor(action.getAlpha(), 255, 255, 255);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         } else {
             setColor(action.getAlpha(), action.getRed(), action.getGreen(), action.getBlue());
         }
