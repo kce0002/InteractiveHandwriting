@@ -10,8 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.hardware.camera2.full"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.hardware.camera2.full" />
 
     <application
         android:name=".HandwritingApplication"
@@ -21,21 +21,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".activities.Video.ScreenShareService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".activities.Video.VideoViewActivity"
             android:label="No Users Streaming"
-            android:screenOrientation="portrait"
-            />
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.Video.VideoMenuActivity"
-            android:label="Streaming"
-            />
+            android:label="Streaming" />
         <activity
             android:name=".activities.Video.VideoStreamActivity"
             android:label="Live Streaming"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
 
         <service android:name=".common.network.nearby.connections.NCNetworkLayerService" /> <!-- added by kyle 1/16/19 -> potential screen rotation bug fix  configChanges   android:configChanges="orientation|keyboardHidden|screenSize" -->
         <activity

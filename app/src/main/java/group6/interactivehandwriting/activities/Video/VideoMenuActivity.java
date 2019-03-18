@@ -31,6 +31,8 @@ import group6.interactivehandwriting.common.network.nearby.connections.message.N
 
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,6 +86,8 @@ public class VideoMenuActivity extends AppCompatActivity {
                     byte[] bitmapByteArray = bitmapStream.toByteArray();
 
                     networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
+                    Button b = findViewById(R.id.startStream);
+                    b.setText("test");
                 }
             }
         });
@@ -108,5 +112,9 @@ public class VideoMenuActivity extends AppCompatActivity {
             public void onServiceDisconnected (ComponentName name) {
             }
         };
+    }
+
+    private void makeToast() {
+        Toast.makeText(VideoMenuActivity.this, "test", Toast.LENGTH_LONG).show();
     }
 }
