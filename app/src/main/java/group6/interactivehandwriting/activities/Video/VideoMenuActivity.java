@@ -23,8 +23,10 @@ import android.view.View;
 
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
+import group6.interactivehandwriting.common.network.NetworkLayerService;
 import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
 import android.media.projection.MediaProjection;
@@ -48,6 +50,14 @@ public class VideoMenuActivity extends AppCompatActivity {
         networkServiceConnection = getNetworkServiceConnection();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Permissions.requestPermissions(this);
+        NetworkLayerService.startNetworkService(this);
+        NetworkLayerService.bindNetworkService(this, networkServiceConnection);
+    }
+
     public void startStream(View view) {
         Intent stream_activity = new Intent(this, VideoStreamActivity.class);
         VideoMenuActivity.this.startActivity(stream_activity);
@@ -64,12 +74,11 @@ public class VideoMenuActivity extends AppCompatActivity {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                if (screenShare) {
+                while (screenShare) {
                     View v = getWindow().getDecorView().getRootView();
                     v.setDrawingCacheEnabled(true);
                     Bitmap bmp = Bitmap.createBitmap(v.getDrawingCache());
                     ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-
                     bmp.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
                     System.out.println("Streaming "  + bitmapStream.size());
                     byte[] bitmapByteArray = bitmapStream.toByteArray();

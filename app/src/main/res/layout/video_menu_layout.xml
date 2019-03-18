@@ -40,9 +40,18 @@
             android:id="@+id/screenShare"
             android:layout_width="@android:dimen/thumbnail_width"
             android:layout_height="@android:dimen/notification_large_icon_height"
+            android:layout_marginBottom="50dp"
             android:onClick="screenShare"
-            android:text="Screen Share"
+            android:text="Start Screen Share"
             tools:layout_editor_absoluteX="156dp" />
+
+        <Button
+            android:id="@+id/stopScreenShare"
+            android:layout_width="@android:dimen/thumbnail_width"
+            android:layout_height="@android:dimen/notification_large_icon_height"
+            android:onClick="stopScreenShare"
+            android:text="Stop Screen Share"
+            tools:layout_editor_absoluteX="156dp"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
