@@ -2,9 +2,16 @@ package group6.interactivehandwriting.activities.Video;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
+import android.os.IBinder;
+import android.os.Parcel;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -16,18 +23,29 @@ import android.view.View;
 
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.common.network.NetworkLayer;
+import group6.interactivehandwriting.common.network.NetworkLayerBinder;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class VideoMenuActivity extends AppCompatActivity {
+    NetworkLayer networkLayer;
+    ServiceConnection networkServiceConnection;
+
+    private static boolean screenShare;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_menu_layout);
+        screenShare = false;
+        networkServiceConnection = getNetworkServiceConnection();
     }
 
     public void startStream(View view) {
@@ -41,28 +59,45 @@ public class VideoMenuActivity extends AppCompatActivity {
     }
 
     public void screenShare(View view) {
-        Activity a = VideoMenuActivity.this;
+        screenShare = true;
 
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (screenShare) {
+                    View v = getWindow().getDecorView().getRootView();
+                    v.setDrawingCacheEnabled(true);
+                    Bitmap bmp = Bitmap.createBitmap(v.getDrawingCache());
+                    ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
-        MediaRecorder mr = new MediaRecorder();
-        mr.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mr.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mr.setVideoSize(dm.widthPixels, dm.heightPixels);
-        mr.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-        mr.setVideoFrameRate(30);
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
+                    System.out.println("Streaming "  + bitmapStream.size());
+                    byte[] bitmapByteArray = bitmapStream.toByteArray();
 
-        try {
-            mr.prepare();
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-        mr.start();
+                    networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
+                }
+            }
+        });
+    }
 
-        MediaProjectionManager mpm = (MediaProjectionManager) a.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+    public void stopScreenShare(View view) {
+        screenShare = false;
+    }
 
+    private ServiceConnection getNetworkServiceConnection() {
+        return new ServiceConnection()
+        {
+            @Override
+            public void onServiceConnected (ComponentName name, IBinder service){
+                NetworkLayerBinder binder = (NetworkLayerBinder) service;
+                networkLayer = binder.getNetworkLayer();
+                byte emptyData[] = {0};
+                networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
+            }
 
-
+            @Override
+            public void onServiceDisconnected (ComponentName name) {
+            }
+        };
     }
 }
