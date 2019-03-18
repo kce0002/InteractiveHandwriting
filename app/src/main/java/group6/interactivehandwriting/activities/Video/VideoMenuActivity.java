@@ -41,15 +41,16 @@ public class VideoMenuActivity extends AppCompatActivity {
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
 
-    ScreenShareService screenShareService;
-    private static boolean screenShare;
+    MediaProjectionManager mediaProjectionManager;
+    MediaProjection mediaProjection;
+
+    static final int REQUEST_CODE_SCREEN_RECORDING = 1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_menu_layout);
-        screenShare = false;
         networkServiceConnection = getNetworkServiceConnection();
     }
 
@@ -59,6 +60,12 @@ public class VideoMenuActivity extends AppCompatActivity {
         Permissions.requestPermissions(this);
         NetworkLayerService.startNetworkService(this);
         NetworkLayerService.bindNetworkService(this, networkServiceConnection);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(networkServiceConnection);
     }
 
     public void startStream(View view) {
@@ -72,7 +79,9 @@ public class VideoMenuActivity extends AppCompatActivity {
     }
 
     public void screenShare(View view) {
-        screenShare = true;
+//        startService(new Intent(this, ScreenShareService.class));
+        mediaProjectionManager = (MediaProjectionManager)getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
+        this.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_RECORDING);
 
 
 //        AsyncTask.execute(new Runnable() {
@@ -95,8 +104,18 @@ public class VideoMenuActivity extends AppCompatActivity {
 //        });
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
+//                this.finish();
+            }
+        }
+    }
+
     public void stopScreenShare(View view) {
-        screenShare = false;
+//        stopService(new Intent(this, ScreenShareService.class));
     }
 
     private ServiceConnection getNetworkServiceConnection() {
@@ -106,7 +125,7 @@ public class VideoMenuActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
-                VideoMenuActivity.this.screenShareService = new ScreenShareService(networkLayer);
+                ScreenShareService.networkLayer = networkLayer;
             }
 
             @Override

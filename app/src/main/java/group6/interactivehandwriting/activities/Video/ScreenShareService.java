@@ -8,15 +8,27 @@ import group6.interactivehandwriting.common.network.NetworkLayer;
 
 public class ScreenShareService extends Service {
 
-    NetworkLayer networkLayer;
-
-    public ScreenShareService(NetworkLayer networkLayer) {
-        this.networkLayer = networkLayer;
-    }
+    public static NetworkLayer networkLayer;
 
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
+    @Override
+    public int onStartCommand (Intent intent, int flags, int startId) {
+        System.out.println("Screen Share Service Started");
+
+
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        System.out.println("Screen Share Service Stopped");
+    }
+
+
 }
