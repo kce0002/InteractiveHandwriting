@@ -46,6 +46,9 @@ import group6.interactivehandwriting.common.network.NetworkLayerService;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkLayerService;
 
+
+
+
 public class RoomActivity extends AppCompatActivity {
     private RoomView roomView;
     private SeekBar seekbar;
