@@ -41,6 +41,7 @@ public class VideoMenuActivity extends AppCompatActivity {
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
 
+    ScreenShareService screenShareService;
     private static boolean screenShare;
 
 
@@ -73,24 +74,25 @@ public class VideoMenuActivity extends AppCompatActivity {
     public void screenShare(View view) {
         screenShare = true;
 
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                while (screenShare) {
-                    View v = getWindow().getDecorView().getRootView();
-                    v.setDrawingCacheEnabled(true);
-                    Bitmap bmp = Bitmap.createBitmap(v.getDrawingCache());
-                    ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                    bmp.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
-                    System.out.println("Streaming "  + bitmapStream.size());
-                    byte[] bitmapByteArray = bitmapStream.toByteArray();
 
-                    networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
-                    Button b = findViewById(R.id.startStream);
-                    b.setText("test");
-                }
-            }
-        });
+//        AsyncTask.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (screenShare) {
+//                    View v = getWindow().getDecorView().getRootView();
+//                    v.setDrawingCacheEnabled(true);
+//                    Bitmap bmp = Bitmap.createBitmap(v.getDrawingCache());
+//                    ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+//                    bmp.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
+//                    System.out.println("Streaming "  + bitmapStream.size());
+//                    byte[] bitmapByteArray = bitmapStream.toByteArray();
+//
+//                    networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
+//                    Button b = findViewById(R.id.startStream);
+//                    b.setText("test");
+//                }
+//            }
+//        });
     }
 
     public void stopScreenShare(View view) {
@@ -104,17 +106,12 @@ public class VideoMenuActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
-                byte emptyData[] = {0};
-                networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
+                VideoMenuActivity.this.screenShareService = new ScreenShareService(networkLayer);
             }
 
             @Override
             public void onServiceDisconnected (ComponentName name) {
             }
         };
-    }
-
-    private void makeToast() {
-        Toast.makeText(VideoMenuActivity.this, "test", Toast.LENGTH_LONG).show();
     }
 }

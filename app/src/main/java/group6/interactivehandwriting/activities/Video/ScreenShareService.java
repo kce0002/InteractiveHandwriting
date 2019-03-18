@@ -4,8 +4,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import group6.interactivehandwriting.common.network.NetworkLayer;
+
 public class ScreenShareService extends Service {
-    public ScreenShareService() {
+
+    NetworkLayer networkLayer;
+
+    public ScreenShareService(NetworkLayer networkLayer) {
+        this.networkLayer = networkLayer;
     }
 
     @Override
