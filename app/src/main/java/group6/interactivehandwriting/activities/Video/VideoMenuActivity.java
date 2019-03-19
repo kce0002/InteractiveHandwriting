@@ -79,7 +79,6 @@ public class VideoMenuActivity extends AppCompatActivity {
     }
 
     public void screenShare(View view) {
-//        startService(new Intent(this, ScreenShareService.class));
         mediaProjectionManager = (MediaProjectionManager)getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
         this.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_RECORDING);
 
@@ -106,10 +105,17 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
                 mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
+//                ScreenShareService.screenshotPermission = (Intent) data.clone();
+                ScreenShareService.mediaProjection = mediaProjection;
+                startService(new Intent(this, ScreenShareService.class));
 //                this.finish();
+            }
+            else if (Activity.RESULT_CANCELED == resultCode) {
+                ScreenShareService.screenshotPermission = null;
             }
         }
     }
