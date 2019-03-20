@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.activities.Video.VideoMenuActivity;
 import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.EndDrawAction;
@@ -31,6 +32,7 @@ public interface NetworkLayer {
 
     void setRoomActivity(RoomActivity roomActivity);
     void setVideoViewActivity(VideoViewActivity videoViewActivity);
+    void setVideoMenuActivity(VideoMenuActivity videoMenuActivity);
 
     NCNetworkConnection getNCNetworkConnection();
 

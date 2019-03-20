@@ -1,6 +1,5 @@
 package group6.interactivehandwriting.activities.Video;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.hardware.display.DisplayManager;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
-import android.media.projection.MediaProjectionManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
@@ -22,7 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 import group6.interactivehandwriting.common.network.NetworkLayer;
-import group6.interactivehandwriting.common.network.NetworkLayerService;
 import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
 public class ScreenShareService extends Service {
@@ -31,6 +28,7 @@ public class ScreenShareService extends Service {
     public static MediaProjection mediaProjection;
     public static ImageReader imageReader;
     public static boolean isStreaming;
+    public static boolean otherUserStreaming;
 
 
     @Override

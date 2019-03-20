@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Set;
 
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.activities.Video.ScreenShareService;
+import group6.interactivehandwriting.activities.Video.VideoMenuActivity;
 import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.Action;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
@@ -59,6 +61,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private RoomActivity roomActivity;
     private VideoViewActivity videoViewActivity;
+    private VideoMenuActivity videoMenuActivity;
 
     public boolean onConnectionInitiated(String endpointId) {
         Toast.makeText(context, "Device found with id " + endpointId, Toast.LENGTH_SHORT).show();
@@ -115,6 +118,11 @@ public class NCNetworkLayerService extends NetworkLayerService {
     @Override
     public void setVideoViewActivity(VideoViewActivity videoViewActivity) {
         this.videoViewActivity = videoViewActivity;
+    }
+
+    @Override
+    public void setVideoMenuActivity(VideoMenuActivity videoMenuActivity) {
+        this.videoMenuActivity = videoMenuActivity;
     }
 
     @Override
@@ -282,6 +290,10 @@ public class NCNetworkLayerService extends NetworkLayerService {
         String username;
         switch(header.getType()) {
             case STREAM_STARTED:
+                ScreenShareService.otherUserStreaming = true;
+                if (videoMenuActivity != null) {
+                    videoMenuActivity.setButtons();
+                }
                 username = routingTable.getProfile(header.getDeviceId()).username;
                 Toast.makeText(context, "Stream started by " + username, Toast.LENGTH_LONG).show();
                 if (videoViewActivity != null) {
@@ -289,9 +301,15 @@ public class NCNetworkLayerService extends NetworkLayerService {
                 }
                 break;
             case STREAM_ENDED:
+                ScreenShareService.otherUserStreaming = false;
+                if (videoMenuActivity != null) {
+                    videoMenuActivity.setButtons();
+                }
                 username = routingTable.getProfile(header.getDeviceId()).username;
                 Toast.makeText(context, "Stream ended by " + username, Toast.LENGTH_LONG).show();
-                videoViewActivity.endViewing();
+                if (videoViewActivity != null) {
+                    videoViewActivity.endViewing();
+                }
                 break;
             case VIDEO_STREAM:
                 if (videoViewActivity != null) {

@@ -1,28 +1,15 @@
 package group6.interactivehandwriting.activities.Video;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaRecorder;
-import android.os.AsyncTask;
 import android.os.IBinder;
-import android.os.Parcel;
-import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.View;
 
 import group6.interactivehandwriting.R;
-import group6.interactivehandwriting.activities.Room.RoomActivity;
 import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
@@ -34,9 +21,6 @@ import android.media.projection.MediaProjectionManager;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 public class VideoMenuActivity extends AppCompatActivity {
     NetworkLayer networkLayer;
@@ -143,6 +127,7 @@ public class VideoMenuActivity extends AppCompatActivity {
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
                 ScreenShareService.networkLayer = networkLayer;
+                networkLayer.setVideoMenuActivity(VideoMenuActivity.this);
             }
 
             @Override
@@ -151,13 +136,20 @@ public class VideoMenuActivity extends AppCompatActivity {
         };
     }
 
-    private void setButtons() {
-        if (ScreenShareService.isStreaming) {
+    public void setButtons() {
+        if (ScreenShareService.otherUserStreaming) {
+            tBtn.setChecked(false);
+            tBtn.setEnabled(false);
+            streamBtn.setEnabled(false);
+            viewStreamBtn.setEnabled(true);
+        }
+        else if (ScreenShareService.isStreaming) {
             tBtn.setChecked(true);
             streamBtn.setEnabled(false);
             viewStreamBtn.setEnabled(false);
         }
         else {
+            tBtn.setEnabled(true);
             tBtn.setChecked(false);
             streamBtn.setEnabled(true);
             viewStreamBtn.setEnabled(true);
