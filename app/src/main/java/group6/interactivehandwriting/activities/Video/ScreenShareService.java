@@ -30,8 +30,8 @@ public class ScreenShareService extends Service {
     public static NetworkLayer networkLayer;
     public static MediaProjection mediaProjection;
     public static Intent screenshotPermission = null;
+    public static ImageReader imageReader;
 
-//    MediaProjectionManager mediaProjectionManager = (MediaProjectionManager)this.getSystemService(MEDIA_PROJECTION_SERVICE);
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -42,10 +42,6 @@ public class ScreenShareService extends Service {
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
         System.out.println("Screen Share Service Started");
-//        mediaProjection = mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, (Intent) screenshotPermission.clone());
-
-        // Network Stuff:
-
 
         WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -57,7 +53,7 @@ public class ScreenShareService extends Service {
         final int height = size.y;
         int density = metrics.densityDpi;
 
-        final ImageReader imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1);
+        imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1);
         final Handler handler = new Handler();
 
         int vdFlags = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
@@ -68,10 +64,12 @@ public class ScreenShareService extends Service {
             public void onImageAvailable(ImageReader reader) {
                 reader.setOnImageAvailableListener(this, handler);
 
+//                Image image = imageReader.acquireLatestImage();
+                Image image = imageReader.acquireNextImage();
 
-
-                Image image = imageReader.acquireLatestImage();
-                //Image image = reader.acquireNextImage();
+                if (image == null) {
+                    return;
+                }
 
                 final Image.Plane[] planes = image.getPlanes();
                 final ByteBuffer buffer = planes[0].getBuffer();
@@ -79,29 +77,23 @@ public class ScreenShareService extends Service {
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
                 int rowPadding = rowStride - pixelStride * metrics.widthPixels;
+
                 // create bitmap
                 Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels + (int) ((float) rowPadding / (float) pixelStride), metrics.heightPixels, Bitmap.Config.ARGB_8888);
                 bmp.copyPixelsFromBuffer(buffer);
 
-
                 // network stuff:
-                Bitmap bmpSend = bmp;
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                bmpSend.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
+                bmp.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
                 System.out.println("Sharing:  "  + bitmapStream.size());
                 byte[] bitmapByteArray = bitmapStream.toByteArray();
                 networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
 
                 image.close();
-                //reader.close();
 
-                Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
+//                Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
                 bmp.recycle();
                 buffer.clear();
-
-
-
-
 
                 /* do something with [realSizeBitmap] */
             }
