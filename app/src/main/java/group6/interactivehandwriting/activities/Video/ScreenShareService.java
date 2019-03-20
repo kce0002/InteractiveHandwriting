@@ -29,8 +29,8 @@ public class ScreenShareService extends Service {
 
     public static NetworkLayer networkLayer;
     public static MediaProjection mediaProjection;
-    public static Intent screenshotPermission = null;
     public static ImageReader imageReader;
+    public static boolean isStreaming;
 
 
     @Override

@@ -33,6 +33,7 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,6 +49,10 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     static Intent screenShareIntent;
 
+    ToggleButton tBtn;
+    Button streamBtn;
+    Button viewStreamBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,10 @@ public class VideoMenuActivity extends AppCompatActivity {
         setContentView(R.layout.video_menu_layout);
         networkServiceConnection = getNetworkServiceConnection();
         screenShareIntent = new Intent(this, ScreenShareService.class);
+
+        tBtn = findViewById(R.id.screenShare);
+        streamBtn = findViewById(R.id.startStream);
+        viewStreamBtn = findViewById(R.id.joinStream);
     }
 
     @Override
@@ -63,6 +72,7 @@ public class VideoMenuActivity extends AppCompatActivity {
         Permissions.requestPermissions(this);
         NetworkLayerService.startNetworkService(this);
         NetworkLayerService.bindNetworkService(this, networkServiceConnection);
+        setButtons();
     }
 
     @Override
@@ -83,26 +93,13 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     public void screenShare(View view) {
         mediaProjectionManager = (MediaProjectionManager)getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
-        this.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_RECORDING);
-
-//        AsyncTask.execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (screenShare) {
-//                    View v = getWindow().getDecorView().getRootView();
-//                    v.setDrawingCacheEnabled(true);
-//                    Bitmap bmp = Bitmap.createBitmap(v.getDrawingCache());
-//                    ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-//                    bmp.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
-//                    System.out.println("Streaming "  + bitmapStream.size());
-//                    byte[] bitmapByteArray = bitmapStream.toByteArray();
-//
-//                    networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
-//                    Button b = findViewById(R.id.startStream);
-//                    b.setText("test");
-//                }
-//            }
-//        });
+        ToggleButton tBtn = findViewById(R.id.screenShare);
+        if (tBtn.isChecked()) {
+            this.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_RECORDING);
+        }
+        else {
+            stopScreenShare(view);
+        }
     }
 
     @Override
@@ -111,27 +108,31 @@ public class VideoMenuActivity extends AppCompatActivity {
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
                 mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
-//                ScreenShareService.screenshotPermission = (Intent) data.clone();
                 ScreenShareService.mediaProjection = mediaProjection;
-                //startService(new Intent(this, ScreenShareService.class));
                 startService(screenShareIntent);
                 byte emptyData[] = {0};
                 networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
                 Toast.makeText(VideoMenuActivity.this, "Screen share starting", Toast.LENGTH_LONG).show();
-//                this.finish();
+
+                findViewById(R.id.startStream).setEnabled(false);
+                findViewById(R.id.joinStream).setEnabled(false);
+                ScreenShareService.isStreaming = true;
             }
             else if (Activity.RESULT_CANCELED == resultCode) {
-                ScreenShareService.screenshotPermission = null;
+                ToggleButton tBtn = findViewById(R.id.screenShare);
+                tBtn.setChecked(false);
             }
         }
     }
 
     public void stopScreenShare(View view) {
-        //stopService(new Intent(this, ScreenShareService.class));
         stopService(screenShareIntent);
         byte emptyData[] = {0};
         networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_ENDED);
         Toast.makeText(VideoMenuActivity.this, "Screen share ending", Toast.LENGTH_LONG).show();
+        findViewById(R.id.startStream).setEnabled(true);
+        findViewById(R.id.joinStream).setEnabled(true);
+        ScreenShareService.isStreaming = false;
     }
 
     private ServiceConnection getNetworkServiceConnection() {
@@ -148,5 +149,18 @@ public class VideoMenuActivity extends AppCompatActivity {
             public void onServiceDisconnected (ComponentName name) {
             }
         };
+    }
+
+    private void setButtons() {
+        if (ScreenShareService.isStreaming) {
+            tBtn.setChecked(true);
+            streamBtn.setEnabled(false);
+            viewStreamBtn.setEnabled(false);
+        }
+        else {
+            tBtn.setChecked(false);
+            streamBtn.setEnabled(true);
+            viewStreamBtn.setEnabled(true);
+        }
     }
 }
