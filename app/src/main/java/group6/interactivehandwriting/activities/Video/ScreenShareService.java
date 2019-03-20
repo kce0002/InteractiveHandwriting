@@ -18,9 +18,12 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 import group6.interactivehandwriting.common.network.NetworkLayer;
+import group6.interactivehandwriting.common.network.NetworkLayerService;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
 public class ScreenShareService extends Service {
 
@@ -40,6 +43,9 @@ public class ScreenShareService extends Service {
     public int onStartCommand (Intent intent, int flags, int startId) {
         System.out.println("Screen Share Service Started");
 //        mediaProjection = mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, (Intent) screenshotPermission.clone());
+
+        // Network Stuff:
+
 
         WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -77,6 +83,15 @@ public class ScreenShareService extends Service {
                 Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels + (int) ((float) rowPadding / (float) pixelStride), metrics.heightPixels, Bitmap.Config.ARGB_8888);
                 bmp.copyPixelsFromBuffer(buffer);
 
+
+                // network stuff:
+                Bitmap bmpSend = bmp;
+                ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+                bmpSend.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
+                System.out.println("Sharing:  "  + bitmapStream.size());
+                byte[] bitmapByteArray = bitmapStream.toByteArray();
+                networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
+
                 image.close();
                 //reader.close();
 
@@ -98,6 +113,8 @@ public class ScreenShareService extends Service {
     @Override
     public void onDestroy() {
         System.out.println("Screen Share Service Stopped");
+        //stopSelf();
+        super.onDestroy();
     }
 
 

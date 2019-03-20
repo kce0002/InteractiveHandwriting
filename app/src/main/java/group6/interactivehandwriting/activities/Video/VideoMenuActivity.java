@@ -46,12 +46,15 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     static final int REQUEST_CODE_SCREEN_RECORDING = 1;
 
+    static Intent screenShareIntent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_menu_layout);
         networkServiceConnection = getNetworkServiceConnection();
+        screenShareIntent = new Intent(this, ScreenShareService.class);
     }
 
     @Override
@@ -110,7 +113,9 @@ public class VideoMenuActivity extends AppCompatActivity {
                 mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
 //                ScreenShareService.screenshotPermission = (Intent) data.clone();
                 ScreenShareService.mediaProjection = mediaProjection;
-                startService(new Intent(this, ScreenShareService.class));
+                //startService(new Intent(this, ScreenShareService.class));
+                startService(screenShareIntent);
+                Toast.makeText(VideoMenuActivity.this, "Screen share starting", Toast.LENGTH_LONG).show();
 //                this.finish();
             }
             else if (Activity.RESULT_CANCELED == resultCode) {
@@ -120,7 +125,9 @@ public class VideoMenuActivity extends AppCompatActivity {
     }
 
     public void stopScreenShare(View view) {
-//        stopService(new Intent(this, ScreenShareService.class));
+        //stopService(new Intent(this, ScreenShareService.class));
+        stopService(screenShareIntent);
+        Toast.makeText(VideoMenuActivity.this, "Screen share ending", Toast.LENGTH_LONG).show();
     }
 
     private ServiceConnection getNetworkServiceConnection() {
