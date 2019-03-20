@@ -83,19 +83,19 @@ public class ScreenShareService extends Service {
                 bmp.copyPixelsFromBuffer(buffer);
 
                 // network stuff:
+                Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
+
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                bmp.compress(Bitmap.CompressFormat.JPEG, 5, bitmapStream);
+                realSizeBitmap.compress(Bitmap.CompressFormat.JPEG, 15, bitmapStream);
                 System.out.println("Sharing:  "  + bitmapStream.size());
                 byte[] bitmapByteArray = bitmapStream.toByteArray();
                 networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
 
                 image.close();
 
-//                Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
                 bmp.recycle();
                 buffer.clear();
 
-                /* do something with [realSizeBitmap] */
             }
         }, null);
 
@@ -105,7 +105,12 @@ public class ScreenShareService extends Service {
     @Override
     public void onDestroy() {
         System.out.println("Screen Share Service Stopped");
-        //stopSelf();
+        imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+            @Override
+            public void onImageAvailable(ImageReader reader) {
+                return;
+            }
+        }, null);
         super.onDestroy();
     }
 
