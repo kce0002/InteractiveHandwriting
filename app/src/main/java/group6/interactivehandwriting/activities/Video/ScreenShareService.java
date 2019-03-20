@@ -27,6 +27,7 @@ public class ScreenShareService extends Service {
     public static NetworkLayer networkLayer;
     public static MediaProjection mediaProjection;
     public static Intent screenshotPermission = null;
+
 //    MediaProjectionManager mediaProjectionManager = (MediaProjectionManager)this.getSystemService(MEDIA_PROJECTION_SERVICE);
 
     @Override
@@ -50,19 +51,21 @@ public class ScreenShareService extends Service {
         final int height = size.y;
         int density = metrics.densityDpi;
 
-        final ImageReader imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2);
-
+        final ImageReader imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1);
         final Handler handler = new Handler();
 
         int vdFlags = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
-        mediaProjection.createVirtualDisplay("screen-mirror", width, height, density, vdFlags, imageReader.getSurface(), null, handler);
-
+        //mediaProjection.createVirtualDisplay("screen-mirror", width, height, density, vdFlags, imageReader.getSurface(), null, handler);
+        mediaProjection.createVirtualDisplay("screen-mirror", width, height, density, vdFlags, imageReader.getSurface(), null, null);
         imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader reader) {
-                reader.setOnImageAvailableListener(null, handler);
+                reader.setOnImageAvailableListener(this, handler);
 
-                Image image = reader.acquireLatestImage();
+
+
+                Image image = imageReader.acquireLatestImage();
+                //Image image = reader.acquireNextImage();
 
                 final Image.Plane[] planes = image.getPlanes();
                 final ByteBuffer buffer = planes[0].getBuffer();
@@ -75,16 +78,21 @@ public class ScreenShareService extends Service {
                 bmp.copyPixelsFromBuffer(buffer);
 
                 image.close();
-                reader.close();
+                //reader.close();
 
                 Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
                 bmp.recycle();
+                buffer.clear();
+
+
+
+
 
                 /* do something with [realSizeBitmap] */
             }
-        }, handler);
+        }, null);
 
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override

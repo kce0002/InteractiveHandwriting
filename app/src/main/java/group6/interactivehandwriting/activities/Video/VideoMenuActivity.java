@@ -82,7 +82,6 @@ public class VideoMenuActivity extends AppCompatActivity {
         mediaProjectionManager = (MediaProjectionManager)getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
         this.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_RECORDING);
 
-
 //        AsyncTask.execute(new Runnable() {
 //            @Override
 //            public void run() {
