@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="50dp"
         android:paddingBottom="5dp"
-        android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
+        android:paddingLeft="5dp"
         android:paddingTop="5dp"
         android:text="Room"
         android:textAlignment="center"
