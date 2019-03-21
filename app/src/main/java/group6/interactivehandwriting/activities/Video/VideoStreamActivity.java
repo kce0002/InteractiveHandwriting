@@ -83,12 +83,11 @@ public class VideoStreamActivity extends AppCompatActivity {
     private CaptureRequest.Builder captureRequestBuilder;
     private Size imageDimension;
 
+    private int cameraIndex = 0;
+
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
-
-    public static final int WIFI_QUALITY = 20;
-    public static final int BLUETOOTH_QUALITY = 5;
 
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
@@ -108,7 +107,7 @@ public class VideoStreamActivity extends AppCompatActivity {
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int i) {
             cameraDevice.close();
-            cameraDevice=null;
+            cameraDevice = null;
         }
     };
 
@@ -137,6 +136,7 @@ public class VideoStreamActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unbindService(networkServiceConnection);
+
         byte emptyData[] = {0};
         networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_ENDED);
     }
@@ -148,6 +148,7 @@ public class VideoStreamActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
+
                 byte emptyData[] = {0};
                 networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
             }
@@ -200,7 +201,7 @@ public class VideoStreamActivity extends AppCompatActivity {
     private void openCamera() {
         CameraManager manager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
         try{
-            cameraId = manager.getCameraIdList()[0];
+            cameraId = manager.getCameraIdList()[cameraIndex];
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             assert map != null;
@@ -293,5 +294,11 @@ public class VideoStreamActivity extends AppCompatActivity {
         mBackgroundThread = new HandlerThread("Camera Background");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+
+    public void switchCamera(View view) {
+        cameraIndex = (cameraIndex == 0) ? 1 : 0;
+        cameraDevice.close();
+        openCamera();
     }
 }
