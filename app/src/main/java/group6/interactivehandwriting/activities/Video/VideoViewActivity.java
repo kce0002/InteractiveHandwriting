@@ -1,6 +1,7 @@
 package group6.interactivehandwriting.activities.Video;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.content.ServiceConnection;
 
 import android.graphics.Bitmap;
@@ -107,8 +108,12 @@ public class VideoViewActivity extends AppCompatActivity {
     }
 
     public void endViewing() {
-        this.setTitle("No users streaming");
-        imageView.setImageResource(android.R.color.transparent);
+        Intent intent = getIntent();
+        overridePendingTransition(0, 0);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+        overridePendingTransition(0, 0);
+        startActivity(intent);
     }
 
 }
