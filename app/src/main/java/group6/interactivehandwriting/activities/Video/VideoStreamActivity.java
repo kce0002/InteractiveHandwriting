@@ -89,6 +89,8 @@ public class VideoStreamActivity extends AppCompatActivity {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
+    private final int STREAM_QUALITY = 50;
+
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
 
@@ -137,8 +139,7 @@ public class VideoStreamActivity extends AppCompatActivity {
         super.onStop();
         unbindService(networkServiceConnection);
 
-        byte emptyData[] = {0};
-        networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_ENDED);
+        networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_ENDED);
     }
 
     private ServiceConnection getNetworkServiceConnection() {
@@ -149,8 +150,7 @@ public class VideoStreamActivity extends AppCompatActivity {
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
 
-                byte emptyData[] = {0};
-                networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
+                networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_STARTED);
             }
 
             @Override
@@ -243,7 +243,7 @@ public class VideoStreamActivity extends AppCompatActivity {
             Bitmap textureViewBitmap = textureView.getBitmap();
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
-            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bitmapStream);
+            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, STREAM_QUALITY, bitmapStream);
             System.out.println("Streaming "  + bitmapStream.size());
             byte[] bitmapByteArray = bitmapStream.toByteArray();
 

@@ -30,6 +30,8 @@ public class ScreenShareService extends Service {
     public static boolean isStreaming;
     public static boolean otherUserStreaming;
 
+    private final int STREAM_QUALITY = 50;
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -84,7 +86,7 @@ public class ScreenShareService extends Service {
                 Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
 
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                realSizeBitmap.compress(Bitmap.CompressFormat.JPEG, 15, bitmapStream);
+                realSizeBitmap.compress(Bitmap.CompressFormat.JPEG, STREAM_QUALITY, bitmapStream);
                 System.out.println("Sharing:  "  + bitmapStream.size());
                 byte[] bitmapByteArray = bitmapStream.toByteArray();
                 networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);

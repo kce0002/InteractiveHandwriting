@@ -94,8 +94,7 @@ public class VideoMenuActivity extends AppCompatActivity {
                 mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
                 ScreenShareService.mediaProjection = mediaProjection;
                 startService(screenShareIntent);
-                byte emptyData[] = {0};
-                networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
+                networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_STARTED);
                 Toast.makeText(VideoMenuActivity.this, "Screen share starting", Toast.LENGTH_LONG).show();
 
                 findViewById(R.id.startStream).setEnabled(false);
@@ -111,8 +110,7 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     public void stopScreenShare(View view) {
         stopService(screenShareIntent);
-        byte emptyData[] = {0};
-        networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_ENDED);
+        networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_ENDED);
         Toast.makeText(VideoMenuActivity.this, "Screen share ending", Toast.LENGTH_LONG).show();
         findViewById(R.id.startStream).setEnabled(true);
         findViewById(R.id.joinStream).setEnabled(true);
