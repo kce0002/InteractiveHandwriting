@@ -131,6 +131,7 @@
                 android:onClick="decPDFPage"
                 android:rotation="90"
                 android:visibility="visible"
+                app:backgroundTint="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/adjViewBtn"
                 app:srcCompat="@android:drawable/arrow_down_float" />
@@ -144,6 +145,7 @@
                 android:onClick="incPDFPage"
                 android:rotation="-90"
                 android:visibility="visible"
+                app:backgroundTint="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@id/undoBtn"
                 app:srcCompat="@android:drawable/arrow_down_float" />

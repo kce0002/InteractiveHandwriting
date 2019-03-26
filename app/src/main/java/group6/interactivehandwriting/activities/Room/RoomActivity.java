@@ -80,7 +80,7 @@ public class RoomActivity extends AppCompatActivity {
         pdfActivity = new PDFActivity();
         drawingBoardActivity = new DrawingBoardActivity();
 
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager = (ViewPagerNoScroll) findViewById(R.id.viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
 
         adapter = new TabAdapter(getSupportFragmentManager());

@@ -150,11 +150,7 @@ public class PDFActivity extends Fragment {
                 networkLayer.sendFile(fd);
             }
 
-            pdfiumCore.closeDocument(pdfDocument); // important!
-
-
-            pdfView.findViewById(R.id.decPageBtn).setVisibility(View.VISIBLE);
-            pdfView.findViewById(R.id.incPageBtn).setVisibility(View.VISIBLE);
+            pdfiumCore.closeDocument(pdfDocument);
 
         } catch(IOException ex) {
             Toast.makeText(context, "File corrupted", Toast.LENGTH_SHORT).show();

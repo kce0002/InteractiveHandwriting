@@ -43,6 +43,9 @@ public class DocumentView extends android.support.v7.widget.AppCompatImageView {
     }
 
     public void incPDFPage() {
+        if (this.pdfPages == null) {
+            return;
+        }
         int pageCount = this.pdfPages.length;
         if (pageCount == 0) {
             return;
@@ -57,6 +60,9 @@ public class DocumentView extends android.support.v7.widget.AppCompatImageView {
     }
 
     public void decPDFPage() {
+        if (this.pdfPages == null) {
+            return;
+        }
         int pageCount = this.pdfPages.length;
         if (pageCount == 0) {
             return;
