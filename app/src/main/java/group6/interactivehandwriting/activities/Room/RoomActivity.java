@@ -58,6 +58,7 @@ public class RoomActivity extends AppCompatActivity {
     private DocumentView documentView;
     private ConstraintLayout roomLayout;
     private PDFActivity pdfActivity;
+    private DrawingBoardActivity drawingBoardActivity;
 
     private TabAdapter adapter;
     private TabLayout tabLayout;
@@ -77,14 +78,17 @@ public class RoomActivity extends AppCompatActivity {
 
         setContentView(R.layout.tabs_layout);
 
+        roomView = new RoomView(context);
+
         pdfActivity = new PDFActivity();
+        drawingBoardActivity = new DrawingBoardActivity();
 
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
 
         adapter = new TabAdapter(getSupportFragmentManager());
-        adapter.addFragment(new DrawingBoardActivity(), "Drawing Board");
-        adapter.addFragment(new PDFActivity(), "PDF");
+        adapter.addFragment(drawingBoardActivity, "Drawing Board");
+        adapter.addFragment(pdfActivity, "PDF");
 
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
@@ -119,8 +123,6 @@ public class RoomActivity extends AppCompatActivity {
                 .start();
     }
 
-    // Modified by Kyle Ehlers on 1/17/19
-    // Added the try/catch to handle the NullPointerException
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -153,6 +155,7 @@ public class RoomActivity extends AppCompatActivity {
         else {
             toolboxLayout.setVisibility(View.VISIBLE);
         }
+        pdfActivity.toggleToolbox();
     }
 
     public void undo(View view) {
@@ -160,11 +163,11 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     public void incPDFPage(View view) {
-        documentView.incPDFPage();
+        pdfActivity.incPDFPage();
     }
 
     public void decPDFPage(View view) {
-        documentView.decPDFPage();
+        pdfActivity.decPDFPage();
     }
 
     public void toggleColorPickerView(View view) {
