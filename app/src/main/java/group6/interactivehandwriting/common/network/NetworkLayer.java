@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import group6.interactivehandwriting.activities.Room.DrawingBoard.DrawingBoardActivity;
+import group6.interactivehandwriting.activities.Room.PDF.PDFActivity;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
 import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
@@ -33,7 +34,7 @@ public interface NetworkLayer {
     Profile getMyProfile();
 
     void setRoomActivity(RoomActivity roomActivity);
-    void setFragmentActivity(FragmentActivity fragmentActivity);
+    void setPDFActivity(PDFActivity pdfActivity);
     void setVideoViewActivity(VideoViewActivity videoViewActivity);
 
     NCNetworkConnection getNCNetworkConnection();

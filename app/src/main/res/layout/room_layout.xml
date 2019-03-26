@@ -63,22 +63,22 @@
                 android:progress="11"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button5" />
+                app:layout_constraintTop_toBottomOf="@+id/eraseBtn" />
 
             <ToggleButton
-                android:id="@+id/button5"
+                android:id="@+id/eraseBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:onClick="colorErase"
+                android:onClick="colorEraseDrawingBoard"
                 android:textOff="@string/erase"
                 android:textOn="@string/draw"
-                app:layout_constraintEnd_toStartOf="@+id/button6"
+                app:layout_constraintEnd_toStartOf="@+id/colorBtn"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/button6"
+                android:id="@+id/colorBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -86,52 +86,42 @@
                 android:text="@string/color"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.512"
-                app:layout_constraintStart_toEndOf="@+id/button5"
+                app:layout_constraintStart_toEndOf="@+id/eraseBtn"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/load_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:onClick="showDocument"
-                android:text="@string/load_doc"
-                app:layout_constraintEnd_toStartOf="@+id/button9"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
-
-            <Button
-                android:id="@+id/button9"
+                android:id="@+id/undoBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:onClick="undo"
+                android:onClick="undoDrawingBoard"
                 android:text="@string/undo"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/load_button"
+                app:layout_constraintStart_toEndOf="@id/adjViewBtn"
                 app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
             <ToggleButton
-                android:id="@+id/toggle_button"
+                android:id="@+id/adjViewBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:onClick="toggleDrawDrawingBoard"
+                android:textOff="@string/move_view"
+                android:textOn="@string/draw"
+                app:layout_constraintEnd_toStartOf="@id/undoBtn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+            <Button
+                android:id="@+id/streamMenuBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:onClick="toggleDraw"
-                android:textOff="@string/move_view"
-                android:textOn="@string/draw"
-                app:layout_constraintEnd_toEndOf="@+id/load_button"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/load_button" />
-
-            <Button
-                android:id="@+id/stream_video"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:onClick="openStreamView"
                 android:text="@string/stream"
-                app:layout_constraintEnd_toEndOf="@+id/toggle_button"
+                app:layout_constraintEnd_toEndOf="@+id/adjViewBtn"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toggle_button" />
+                app:layout_constraintTop_toBottomOf="@+id/adjViewBtn" />
 
         </android.support.constraint.ConstraintLayout>
 

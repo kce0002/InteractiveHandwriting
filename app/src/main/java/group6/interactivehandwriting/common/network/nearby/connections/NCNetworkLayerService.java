@@ -64,12 +64,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private RoomActivity roomActivity;
     private VideoViewActivity videoViewActivity;
-    private DrawingBoardActivity drawingBoardActivity;
-    private FragmentActivity fragmentActivity;
-
     private PDFActivity pdfActivity;
-    private DocumentView documentView;
-
 
     public boolean onConnectionInitiated(String endpointId) {
         Toast.makeText(context, "Device found with id " + endpointId, Toast.LENGTH_SHORT).show();
@@ -124,8 +119,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
-    public void setFragmentActivity(FragmentActivity fragmentActivity) {
-        this.fragmentActivity = fragmentActivity;
+    public void setPDFActivity(PDFActivity pdfActivity) {
+        this.pdfActivity = pdfActivity;
     }
 
     @Override

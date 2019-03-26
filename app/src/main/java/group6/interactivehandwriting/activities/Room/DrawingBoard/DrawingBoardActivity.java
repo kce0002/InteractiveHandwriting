@@ -1,11 +1,7 @@
 package group6.interactivehandwriting.activities.Room.DrawingBoard;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -26,9 +22,6 @@ import group6.interactivehandwriting.activities.Room.RoomViewActionUtility;
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
 import group6.interactivehandwriting.activities.Room.views.RoomView;
 import group6.interactivehandwriting.common.network.NetworkLayer;
-import group6.interactivehandwriting.common.network.NetworkLayerBinder;
-import group6.interactivehandwriting.common.network.NetworkLayerService;
-import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
 
 public class DrawingBoardActivity extends Fragment {
     private ConstraintLayout roomLayout;
@@ -40,15 +33,12 @@ public class DrawingBoardActivity extends Fragment {
 
     private boolean resizeToggle;
 
-    ServiceConnection networkServiceConnection;
-    NetworkLayer networkLayer;
-    private NCNetworkConnection ncNetworkConnection;
+    private NetworkLayer networkLayer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         dbView = inflater.inflate(R.layout.room_layout, container, false);
 
-        networkServiceConnection = getNetworkServiceConnection();
 
         roomLayout = dbView.findViewById(R.id.roomView_layout);
         roomLayout.setBackgroundColor(Color.WHITE);
@@ -62,6 +52,7 @@ public class DrawingBoardActivity extends Fragment {
 
         roomView.setDocumentView(documentView);
 
+
         seekbar = dbView.findViewById(R.id.seekBar);
         seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
 
@@ -69,7 +60,7 @@ public class DrawingBoardActivity extends Fragment {
         AlphaSlideBar alphaSlideBar = dbView.findViewById(R.id.alphaSlideBar);
         BrightnessSlideBar brightnessSlideBar = dbView.findViewById(R.id.brightnessSlide);
 
-        resizeToggle = dbView.findViewById(R.id.toggle_button).isActivated();
+        resizeToggle = dbView.findViewById(R.id.adjViewBtn).isActivated();
 
         // Add alpha and brightness sliders
         color_picker_view.attachAlphaSlider(alphaSlideBar);
@@ -86,6 +77,11 @@ public class DrawingBoardActivity extends Fragment {
         set_initial_color();
 
         return dbView;
+    }
+
+    public void setNetworkLayer(NetworkLayer networkLayer) {
+        this.networkLayer = networkLayer;
+        roomView.setNetworkLayer(networkLayer);
     }
 
     private void set_initial_color() {
@@ -113,44 +109,6 @@ public class DrawingBoardActivity extends Fragment {
         );
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        NetworkLayerService.startNetworkService(getActivity());
-        NetworkLayerService.bindNetworkService(getActivity(), networkServiceConnection);
-        roomLayout.bringChildToFront(roomView);
-    }
-
-    private ServiceConnection getNetworkServiceConnection() {
-        return new ServiceConnection()
-        {
-            @Override
-            public void onServiceConnected (ComponentName name, IBinder service){
-                NetworkLayerBinder binder = (NetworkLayerBinder) service;
-                networkLayer = binder.getNetworkLayer();
-                handleNetworkStarted();
-            }
-
-            @Override
-            public void onServiceDisconnected (ComponentName name){
-
-            }
-        };
-    }
-
-    private void handleNetworkStarted() {
-        roomView.setNetworkLayer(networkLayer);
-        networkLayer.setFragmentActivity(getActivity());;
-        ncNetworkConnection = networkLayer.getNCNetworkConnection();
-        ncNetworkConnection.stopDiscovering();
-        ncNetworkConnection.advertise();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        getActivity().unbindService(networkServiceConnection);
-    }
 
     // Used for the SeekBar to change pen width
     SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
@@ -178,6 +136,39 @@ public class DrawingBoardActivity extends Fragment {
         }
         else {
             toolboxLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void undo() {
+        roomView.undo();
+    }
+
+    public void toggleColorPickerView() {
+
+        ConstraintLayout colorPickerLayout = dbView.findViewById(R.id.color_picker_view);
+        ConstraintLayout toolboxLayout = dbView.findViewById(R.id.toolbox_view);
+
+        if (colorPickerLayout.getVisibility() == View.VISIBLE) {
+            colorPickerLayout.setVisibility(View.GONE);
+            toolboxLayout.setVisibility(View.VISIBLE);
+        }
+        else {
+            colorPickerLayout.setVisibility(View.VISIBLE);
+            toolboxLayout.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void colorErase() {
+        RoomViewActionUtility.setEraser();
+        dbView.setPressed(true);
+    }
+
+    public void toggleDraw() {
+        if (roomView.getTouchState() == roomView.getDrawState()) {
+            roomView.setTouchState(roomView.getResizeState());
+        }
+        else {
+            roomView.setTouchState(roomView.getDrawState());
         }
     }
 }

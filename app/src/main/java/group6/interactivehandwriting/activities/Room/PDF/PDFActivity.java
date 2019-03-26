@@ -3,6 +3,7 @@ package group6.interactivehandwriting.activities.Room.PDF;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.constraint.ConstraintLayout;
@@ -11,18 +12,27 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.shockwave.pdfium.PdfDocument;
 import com.shockwave.pdfium.PdfiumCore;
+import com.skydoves.colorpickerview.ColorEnvelope;
+import com.skydoves.colorpickerview.ColorPickerView;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
+import com.skydoves.colorpickerview.sliders.AlphaSlideBar;
+import com.skydoves.colorpickerview.sliders.BrightnessSlideBar;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 import group6.interactivehandwriting.R;
+import group6.interactivehandwriting.activities.Room.RoomViewActionUtility;
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
+import group6.interactivehandwriting.activities.Room.views.RoomView;
 import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 
@@ -30,43 +40,82 @@ public class PDFActivity extends Fragment {
     private Context context;
     private DocumentView documentView;
     private NetworkLayer networkLayer;
+    private SeekBar seekbar;
+    private ColorPickerView color_picker_view;
     private View pdfView;
-    //@Override
+    private RoomView roomView;
+    private ConstraintLayout roomLayout;
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         pdfView = inflater.inflate(R.layout.pdf_tab_layout, container, false);
-        documentView = pdfView.findViewById(R.id.documentView);
+
         context = pdfView.getContext();
+
+        roomLayout = pdfView.findViewById(R.id.roomView_layout);
+        roomLayout.setBackgroundColor(Color.WHITE);
+
+        roomView = new RoomView(context);
+        roomLayout.addView(roomView);
+        roomLayout.bringChildToFront(roomView);
+
+        documentView = pdfView.findViewById(R.id.documentView);
+        roomView.setDocumentView(documentView);
+
+        seekbar = pdfView.findViewById(R.id.seekBar);
+        seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
+
+        color_picker_view = pdfView.findViewById(R.id.colorPickerLayout);
+        AlphaSlideBar alphaSlideBar = pdfView.findViewById(R.id.alphaSlideBar);
+        BrightnessSlideBar brightnessSlideBar = pdfView.findViewById(R.id.brightnessSlide);
+
+
+        // Add alpha and brightness sliders
+        color_picker_view.attachAlphaSlider(alphaSlideBar);
+        color_picker_view.attachBrightnessSlider(brightnessSlideBar);
+
+        // Create listener for changing color
+        color_picker_view.setColorListener(new ColorEnvelopeListener() {
+            @Override
+            public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                RoomViewActionUtility.ChangeColorHex(envelope.getHexCode());
+            }
+        });
+
+        set_initial_color();
+
         return pdfView;
     }
 
-    public DocumentView getDocumentView() {
-        return this.documentView;
+    public void setNetworkLayer(NetworkLayer networkLayer) {
+        this.networkLayer = networkLayer;
+        roomView.setNetworkLayer(networkLayer);
     }
 
-    public void showDocument() {
-        new MaterialFilePicker()
-                .withActivity(this.getActivity())
-                .withRequestCode(Permissions.REQUEST_CODE_FILEPICKER)
-                .withHiddenFiles(true)
-                .start();
-    }
+    private void set_initial_color() {
+        // Wait for color_picker_view to load to get width and height
+        color_picker_view.post(new Runnable() {
+                                   public void run() {
 
-    // Modified by Kyle Ehlers on 1/17/19
-    // Added the try/catch to handle the NullPointerException
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+                                       int width = color_picker_view.getWidth();
+                                       int radius = width / 2;
+                                       int center_y = color_picker_view.getHeight() / 2;
 
-        if (requestCode == Permissions.REQUEST_CODE_FILEPICKER) {
-            try {
-                String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-                showPDF(new File(filePath), context);
-            }
-            catch (NullPointerException e) {
-                e.printStackTrace();
-            }
+                                       // Makes sure the initial color is not too light to see
+                                       int min_dist_from_center = radius / 2;
 
-        }
+                                       // Generate random angle and distance from center of color wheel
+                                       double rand_angle = new Random().nextDouble() * Math.PI*2;
+                                       double rand_dist = new Random().nextInt(radius - min_dist_from_center) + min_dist_from_center;
+
+                                       // Use random values to set initial color
+                                       int rand_x =(int)(Math.cos(rand_angle) * rand_dist) + radius;
+                                       int rand_y =(int)(Math.sin(rand_angle) * rand_dist) + center_y;
+                                       color_picker_view.setSelectorPoint(rand_x, rand_y);
+                                   }
+                               }
+        );
     }
 
     public void showPDF(File file, Context context) {
@@ -104,8 +153,8 @@ public class PDFActivity extends Fragment {
             pdfiumCore.closeDocument(pdfDocument); // important!
 
 
-            getView().findViewById(R.id.decPageBtn).setVisibility(View.VISIBLE);
-            getView().findViewById(R.id.incPageBtn).setVisibility(View.VISIBLE);
+            pdfView.findViewById(R.id.decPageBtn).setVisibility(View.VISIBLE);
+            pdfView.findViewById(R.id.incPageBtn).setVisibility(View.VISIBLE);
 
         } catch(IOException ex) {
             Toast.makeText(context, "File corrupted", Toast.LENGTH_SHORT).show();
@@ -132,7 +181,38 @@ public class PDFActivity extends Fragment {
         }
     }
 
+    // Used for the SeekBar to change pen width
+    SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int seekbar_progress, boolean fromUser) {
+            RoomViewActionUtility.ChangeWidth((float)seekbar_progress);
+        }
 
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
 
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            RoomViewActionUtility.ChangeWidth((float)seekbar.getProgress());
+        }
+    };
 
+    public void undo() {
+        roomView.undo();
+    }
+
+    public void colorErase() {
+        RoomViewActionUtility.setEraser();
+        pdfView.setPressed(true);
+    }
+
+    public void toggleDraw() {
+        if (roomView.getTouchState() == roomView.getDrawState()) {
+            roomView.setTouchState(roomView.getResizeState());
+        }
+        else {
+            roomView.setTouchState(roomView.getDrawState());
+        }
+    }
 }

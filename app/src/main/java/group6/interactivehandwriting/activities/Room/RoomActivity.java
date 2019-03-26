@@ -51,12 +51,9 @@ import group6.interactivehandwriting.common.network.nearby.connections.NCNetwork
 import group6.interactivehandwriting.activities.Room.PDF.PDFActivity;
 
 public class RoomActivity extends AppCompatActivity {
-    private RoomView roomView;
-    private SeekBar seekbar;
-    private ColorPickerView color_picker_view;
+//    private RoomView roomView;
     private Context context;
-    private DocumentView documentView;
-    private ConstraintLayout roomLayout;
+//    private ConstraintLayout roomLayout;
     private PDFActivity pdfActivity;
     private DrawingBoardActivity drawingBoardActivity;
 
@@ -78,7 +75,7 @@ public class RoomActivity extends AppCompatActivity {
 
         setContentView(R.layout.tabs_layout);
 
-        roomView = new RoomView(context);
+//        roomView = new RoomView(context);
 
         pdfActivity = new PDFActivity();
         drawingBoardActivity = new DrawingBoardActivity();
@@ -93,7 +90,50 @@ public class RoomActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
 
+        networkServiceConnection = getNetworkServiceConnection();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        NetworkLayerService.startNetworkService(this);
+        NetworkLayerService.bindNetworkService(this, networkServiceConnection);
+//        roomLayout.bringChildToFront(roomView);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(networkServiceConnection);
+    }
+
+    private ServiceConnection getNetworkServiceConnection() {
+        return new ServiceConnection()
+        {
+            @Override
+            public void onServiceConnected (ComponentName name, IBinder service){
+                NetworkLayerBinder binder = (NetworkLayerBinder) service;
+                networkLayer = binder.getNetworkLayer();
+                handleNetworkStarted();
+            }
+
+            @Override
+            public void onServiceDisconnected (ComponentName name){
+
+            }
+        };
+    }
+
+    private void handleNetworkStarted() {
+//        roomView.setNetworkLayer(networkLayer);
+        networkLayer.setRoomActivity(this);
+        networkLayer.setPDFActivity(pdfActivity);
+        ncNetworkConnection = networkLayer.getNCNetworkConnection();
+        ncNetworkConnection.stopDiscovering();
+        ncNetworkConnection.advertise();
+        pdfActivity.setNetworkLayer(networkLayer);
+        drawingBoardActivity.setNetworkLayer(networkLayer);
     }
 
     private void getRoomName(Bundle savedInstanceState) {
@@ -154,8 +194,12 @@ public class RoomActivity extends AppCompatActivity {
         drawingBoardActivity.toggleToolbox();
     }
 
-    public void undo(View view) {
-        roomView.undo();
+    public void undoPDF(View view) {
+        pdfActivity.undo();
+    }
+
+    public void undoDrawingBoard(View view) {
+        drawingBoardActivity.undo();
     }
 
     public void incPDFPage(View view) {
@@ -167,42 +211,27 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     public void toggleColorPickerView(View view) {
-
-        ConstraintLayout colorPickerLayout = findViewById(R.id.color_picker_view);
-        ConstraintLayout toolboxLayout = findViewById(R.id.toolbox_view);
-
-        if (colorPickerLayout.getVisibility() == View.VISIBLE) {
-            colorPickerLayout.setVisibility(View.GONE);
-            toolboxLayout.setVisibility(View.VISIBLE);
-        }
-        else {
-            colorPickerLayout.setVisibility(View.VISIBLE);
-            toolboxLayout.setVisibility(View.INVISIBLE);
-        }
-
-
+        drawingBoardActivity.toggleColorPickerView();
     }
 
     public void changeColor(View view) {
         RoomViewActionUtility.ChangeColorHex(view.getTag().toString());
     }
 
-    public void colorErase(View view) {
-        RoomViewActionUtility.setEraser();
-        view.setPressed(true);
+    public void colorEraseDrawingBoard(View view) {
+        drawingBoardActivity.colorErase();
     }
 
-    public void saveCanvas(View view) {
-
+    public void colorErasePDF(View view) {
+        pdfActivity.colorErase();
     }
 
-    public void toggleDraw(View view) {
-        if (roomView.getTouchState() == roomView.getDrawState()) {
-            roomView.setTouchState(roomView.getResizeState());
-        }
-        else {
-            roomView.setTouchState(roomView.getDrawState());
-        }
+    public void toggleDrawDrawingBoard(View view) {
+        drawingBoardActivity.toggleDraw();
+    }
+
+    public void toggleDrawPDF(View view) {
+        pdfActivity.toggleDraw();
     }
 
     @Override
