@@ -3,6 +3,8 @@ package group6.interactivehandwriting.common.network.nearby.connections;
 import android.content.Context;
 import android.content.Intent;
 import android.os.ParcelFileDescriptor;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -12,7 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import group6.interactivehandwriting.activities.Room.DrawingBoard.DrawingBoardActivity;
+import group6.interactivehandwriting.activities.Room.PDF.PDFActivity;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.activities.Room.views.DocumentView;
 import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.Action;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
@@ -59,6 +64,12 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private RoomActivity roomActivity;
     private VideoViewActivity videoViewActivity;
+    private DrawingBoardActivity drawingBoardActivity;
+    private FragmentActivity fragmentActivity;
+
+    private PDFActivity pdfActivity;
+    private DocumentView documentView;
+
 
     public boolean onConnectionInitiated(String endpointId) {
         Toast.makeText(context, "Device found with id " + endpointId, Toast.LENGTH_SHORT).show();
@@ -110,6 +121,11 @@ public class NCNetworkLayerService extends NetworkLayerService {
     @Override
     public void setRoomActivity(RoomActivity roomActivity) {
         this.roomActivity = roomActivity;
+    }
+
+    @Override
+    public void setFragmentActivity(FragmentActivity fragmentActivity) {
+        this.fragmentActivity = fragmentActivity;
     }
 
     @Override
@@ -259,7 +275,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
     private void handleFilePayload(String endpoint, Payload payload) {
         if (payload != null) {
             File file = payload.asFile().asJavaFile();
-            this.roomActivity.showPDF(file);
+            this.pdfActivity.showPDF(file, context);
         }
     }
 

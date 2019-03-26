@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -36,6 +38,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import group6.interactivehandwriting.activities.Room.DrawingBoard.DrawingBoardActivity;
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
 import group6.interactivehandwriting.activities.Room.views.RoomView;
 import group6.interactivehandwriting.activities.Video.VideoMenuActivity;
@@ -45,6 +48,7 @@ import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkLayerService;
+import group6.interactivehandwriting.activities.Room.PDF.PDFActivity;
 
 public class RoomActivity extends AppCompatActivity {
     private RoomView roomView;
@@ -53,8 +57,12 @@ public class RoomActivity extends AppCompatActivity {
     private Context context;
     private DocumentView documentView;
     private ConstraintLayout roomLayout;
+    private PDFActivity pdfActivity;
 
-    private boolean resizeToggle;
+    private TabAdapter adapter;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+
 
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
@@ -67,43 +75,21 @@ public class RoomActivity extends AppCompatActivity {
         context = getApplicationContext();
         getRoomName(savedInstanceState);
 
-        networkServiceConnection = getNetworkServiceConnection();
+        setContentView(R.layout.tabs_layout);
 
-        setContentView(R.layout.room_layout);
-        roomLayout = findViewById(R.id.roomView_layout);
-        roomLayout.setBackgroundColor(Color.WHITE);
+        pdfActivity = new PDFActivity();
 
-        roomView = new RoomView(context);
-        roomLayout.addView(roomView);
-        roomLayout.bringChildToFront(roomView);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
 
-        documentView = findViewById(R.id.documentView);
+        adapter = new TabAdapter(getSupportFragmentManager());
+        adapter.addFragment(new DrawingBoardActivity(), "Drawing Board");
+        adapter.addFragment(new PDFActivity(), "PDF");
 
-        roomView.setDocumentView(documentView);
-
-        seekbar = findViewById(R.id.seekBar);
-        seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
-
-        color_picker_view = findViewById(R.id.colorPickerLayout);
-        AlphaSlideBar alphaSlideBar = findViewById(R.id.alphaSlideBar);
-        BrightnessSlideBar brightnessSlideBar = findViewById(R.id.brightnessSlide);
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
 
 
-        resizeToggle = findViewById(R.id.toggle_button).isActivated();
-
-        // Add alpha and brightness sliders
-        color_picker_view.attachAlphaSlider(alphaSlideBar);
-        color_picker_view.attachBrightnessSlider(brightnessSlideBar);
-
-        // Create listener for changing color
-        color_picker_view.setColorListener(new ColorEnvelopeListener() {
-            @Override
-            public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
-                RoomViewActionUtility.ChangeColorHex(envelope.getHexCode());
-            }
-        });
-
-        set_initial_color();
     }
 
     private void getRoomName(Bundle savedInstanceState) {
@@ -125,45 +111,6 @@ public class RoomActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        NetworkLayerService.startNetworkService(this);
-        NetworkLayerService.bindNetworkService(this, networkServiceConnection);
-        roomLayout.bringChildToFront(roomView);
-    }
-
-    private ServiceConnection getNetworkServiceConnection() {
-        return new ServiceConnection()
-        {
-            @Override
-            public void onServiceConnected (ComponentName name, IBinder service){
-                NetworkLayerBinder binder = (NetworkLayerBinder) service;
-                networkLayer = binder.getNetworkLayer();
-                handleNetworkStarted();
-            }
-
-            @Override
-            public void onServiceDisconnected (ComponentName name){
-
-            }
-        };
-    }
-
-    private void handleNetworkStarted() {
-        roomView.setNetworkLayer(networkLayer);
-        networkLayer.setRoomActivity(this);
-        ncNetworkConnection = networkLayer.getNCNetworkConnection();
-        ncNetworkConnection.stopDiscovering();
-        ncNetworkConnection.advertise();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(networkServiceConnection);
-    }
-
     public void showDocument(View view) {
         new MaterialFilePicker()
                 .withActivity(this)
@@ -181,7 +128,7 @@ public class RoomActivity extends AppCompatActivity {
         if (requestCode == Permissions.REQUEST_CODE_FILEPICKER) {
             try {
                 String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-                showPDF(new File(filePath));
+                pdfActivity.showPDF(new File(filePath), context);
             }
             catch (NullPointerException e) {
                 e.printStackTrace();
@@ -196,50 +143,6 @@ public class RoomActivity extends AppCompatActivity {
         RoomActivity.this.startActivity(video_activity);
     }
 
-    public void showPDF(File file) {
-        try {
-
-            PdfiumCore pdfiumCore = new PdfiumCore(context);
-
-            ParcelFileDescriptor fd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-            PdfDocument pdfDocument = pdfiumCore.newDocument(fd);
-
-            //Get current screen size
-            DisplayMetrics metrics = getBaseContext().getResources().getDisplayMetrics();
-            int screen_width = metrics.widthPixels;
-            int screen_height = metrics.heightPixels;
-
-            int pageCount = pdfiumCore.getPageCount(pdfDocument);
-
-            // ARGB_8888 - best quality, high memory usage, higher possibility of OutOfMemoryError
-            // RGB_565 - little worse quality, twice less memory usage
-
-            Bitmap bitmapArr[] = new Bitmap[pageCount];
-
-            for (int pageNum = 0; pageNum < pageCount; pageNum++) {
-                Bitmap bitmap = Bitmap.createBitmap(screen_width, screen_height, Bitmap.Config.ARGB_8888);
-                pdfiumCore.openPage(pdfDocument, pageNum);
-                pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0, screen_width, screen_height, true);
-                bitmapArr[pageNum] = bitmap;
-            }
-
-            documentView.setPDF(bitmapArr);
-
-            if (networkLayer != null) {
-                networkLayer.sendFile(fd);
-            }
-
-            pdfiumCore.closeDocument(pdfDocument); // important!
-
-
-            findViewById(R.id.decPageBtn).setVisibility(View.VISIBLE);
-            findViewById(R.id.incPageBtn).setVisibility(View.VISIBLE);
-
-        } catch(IOException ex) {
-            Toast.makeText(context, "File corrupted", Toast.LENGTH_SHORT).show();
-            ex.printStackTrace();
-        }
-    }
 
     public void toggleToolbox(View view) {
         ConstraintLayout toolboxLayout = findViewById(R.id.toolbox_view);
@@ -262,32 +165,6 @@ public class RoomActivity extends AppCompatActivity {
 
     public void decPDFPage(View view) {
         documentView.decPDFPage();
-    }
-
-
-    private void set_initial_color() {
-        // Wait for color_picker_view to load to get width and height
-        color_picker_view.post(new Runnable() {
-            public void run() {
-
-                int width = color_picker_view.getWidth();
-                int radius = width / 2;
-                int center_y = color_picker_view.getHeight() / 2;
-
-                // Makes sure the initial color is not too light to see
-                int min_dist_from_center = radius / 2;
-
-                // Generate random angle and distance from center of color wheel
-                double rand_angle = new Random().nextDouble() * Math.PI*2;
-                double rand_dist = new Random().nextInt(radius - min_dist_from_center) + min_dist_from_center;
-
-                // Use random values to set initial color
-                int rand_x =(int)(Math.cos(rand_angle) * rand_dist) + radius;
-                int rand_y =(int)(Math.sin(rand_angle) * rand_dist) + center_y;
-                color_picker_view.setSelectorPoint(rand_x, rand_y);
-            }
-        }
-        );
     }
 
     public void toggleColorPickerView(View view) {
@@ -328,23 +205,6 @@ public class RoomActivity extends AppCompatActivity {
             roomView.setTouchState(roomView.getDrawState());
         }
     }
-
-    // Used for the SeekBar to change pen width
-    SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int seekbar_progress, boolean fromUser) {
-            RoomViewActionUtility.ChangeWidth((float)seekbar_progress);
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            RoomViewActionUtility.ChangeWidth((float)seekbar.getProgress());
-        }
-    };
 
     @Override
     public void onBackPressed() {

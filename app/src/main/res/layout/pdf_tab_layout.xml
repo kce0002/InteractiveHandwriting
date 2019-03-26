@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/room_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <!-- Layout used to position RoomView underneath the toolbox-->
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/decPageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            android:onClick="decPDFPage"
+            android:rotation="90"
+            android:visibility="gone"
+            app:srcCompat="@android:drawable/arrow_down_float" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/incPageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="70dp"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:onClick="incPDFPage"
+            android:rotation="-90"
+            android:visibility="gone"
+            app:srcCompat="@android:drawable/arrow_down_float" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/pdfButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal">
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/roomView_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#00ffffff">
+
+            <group6.interactivehandwriting.activities.Room.views.DocumentView
+                android:id="@+id/documentView"
+                android:layout_width="411dp"
+                android:layout_height="661dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/toolbox_view"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:layout_gravity="bottom"
+            android:background="#d9e2ff"
+            android:visibility="visible">
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:max="50"
+                android:progress="11"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/button5" />
+
+            <ToggleButton
+                android:id="@+id/button5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:onClick="colorErase"
+                android:textOff="@string/erase"
+                android:textOn="@string/draw"
+                app:layout_constraintEnd_toStartOf="@+id/button6"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/button6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:onClick="toggleColorPickerView"
+                android:text="@string/color"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.512"
+                app:layout_constraintStart_toEndOf="@+id/button5"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/load_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:onClick="showDocument"
+                android:text="@string/load_doc"
+                app:layout_constraintEnd_toStartOf="@+id/button9"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+            <Button
+                android:id="@+id/button9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:onClick="undo"
+                android:text="@string/undo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/load_button"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+            <ToggleButton
+                android:id="@+id/toggle_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:onClick="toggleDraw"
+                android:textOff="@string/move_view"
+                android:textOn="@string/draw"
+                app:layout_constraintEnd_toEndOf="@+id/load_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/load_button" />
+
+            <Button
+                android:id="@+id/stream_video"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:onClick="openStreamView"
+                android:text="@string/stream"
+                app:layout_constraintEnd_toEndOf="@+id/toggle_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toggle_button" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/toolbox_button_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:background="#00555555">
+
+
+            <ToggleButton
+                android:id="@+id/toolbox_visible_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginBottom="25dp"
+                android:layout_marginEnd="32dp"
+                android:background="@drawable/round_button"
+                android:onClick="toggleToolbox"
+                android:textOn="@string/plus"
+                android:textOff="@string/minus"
+                android:textSize="25sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/color_picker_view"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_gravity="bottom"
+            android:background="#d9e2ff"
+            android:visibility="invisible">
+
+            <com.skydoves.colorpickerview.ColorPickerView
+                android:id="@+id/colorPickerLayout"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_gravity="bottom|center"
+                android:layout_marginStart="67dp"
+                android:layout_marginEnd="67dp"
+                android:layout_marginBottom="100dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                app:palette="@drawable/palette"
+                app:selector="@drawable/wheel" />
+
+            <com.skydoves.colorpickerview.sliders.AlphaSlideBar
+                android:id="@+id/alphaSlideBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                app:borderColor_AlphaSlideBar="@android:color/darker_gray"
+                app:borderSize_AlphaSlideBar="5"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/colorPickerLayout"
+                app:selector_AlphaSlideBar="@drawable/wheel" />
+
+            <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
+                android:id="@+id/brightnessSlide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                app:borderColor_BrightnessSlider="@android:color/darker_gray"
+                app:borderSize_BrightnessSlider="5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/alphaSlideBar"
+                app:selector_BrightnessSlider="@drawable/wheel" />
+
+            <Button
+                android:id="@+id/closeColorPicker"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="25dp"
+                android:background="@drawable/round_button"
+                android:onClick="toggleColorPickerView"
+                android:text="X"
+                android:textSize="25sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+        </android.support.constraint.ConstraintLayout>
+
+
+    </FrameLayout>
+
+
+</android.support.constraint.ConstraintLayout>
