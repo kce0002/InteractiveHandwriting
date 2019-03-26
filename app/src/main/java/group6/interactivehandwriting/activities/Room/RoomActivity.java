@@ -146,16 +146,12 @@ public class RoomActivity extends AppCompatActivity {
     }
 
 
-    public void toggleToolbox(View view) {
-        ConstraintLayout toolboxLayout = findViewById(R.id.toolbox_view);
-
-        if (toolboxLayout.getVisibility() == View.VISIBLE) {
-            toolboxLayout.setVisibility(View.GONE);
-        }
-        else {
-            toolboxLayout.setVisibility(View.VISIBLE);
-        }
+    public void toggleToolboxPDF(View view) {
         pdfActivity.toggleToolbox();
+    }
+
+    public void toggleToolboxDrawingBoard(View view) {
+        drawingBoardActivity.toggleToolbox();
     }
 
     public void undo(View view) {

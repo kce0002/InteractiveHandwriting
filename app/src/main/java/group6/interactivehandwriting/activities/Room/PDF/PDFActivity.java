@@ -27,10 +27,10 @@ import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 
 public class PDFActivity extends Fragment {
-    Context context;
-    DocumentView documentView;
-    NetworkLayer networkLayer;
-    View pdfView;
+    private Context context;
+    private DocumentView documentView;
+    private NetworkLayer networkLayer;
+    private View pdfView;
     //@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         pdfView = inflater.inflate(R.layout.pdf_tab_layout, container, false);

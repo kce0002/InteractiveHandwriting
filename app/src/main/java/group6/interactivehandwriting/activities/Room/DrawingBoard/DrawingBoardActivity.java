@@ -36,6 +36,7 @@ public class DrawingBoardActivity extends Fragment {
     private DocumentView documentView;
     private SeekBar seekbar;
     private ColorPickerView color_picker_view;
+    private View dbView;
 
     private boolean resizeToggle;
 
@@ -45,30 +46,30 @@ public class DrawingBoardActivity extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.room_layout, container, false);
+        dbView = inflater.inflate(R.layout.room_layout, container, false);
 
         networkServiceConnection = getNetworkServiceConnection();
 
-        roomLayout = view.findViewById(R.id.roomView_layout);
+        roomLayout = dbView.findViewById(R.id.roomView_layout);
         roomLayout.setBackgroundColor(Color.WHITE);
 
-        roomView = new RoomView(view.getContext());
+        roomView = new RoomView(dbView.getContext());
 
         roomLayout.addView(roomView);
         roomLayout.bringChildToFront(roomView);
 
-        documentView = view.findViewById(R.id.documentView);
+        documentView = dbView.findViewById(R.id.documentView);
 
         roomView.setDocumentView(documentView);
 
-        seekbar = view.findViewById(R.id.seekBar);
+        seekbar = dbView.findViewById(R.id.seekBar);
         seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
 
-        color_picker_view = view.findViewById(R.id.colorPickerLayout);
-        AlphaSlideBar alphaSlideBar = view.findViewById(R.id.alphaSlideBar);
-        BrightnessSlideBar brightnessSlideBar = view.findViewById(R.id.brightnessSlide);
+        color_picker_view = dbView.findViewById(R.id.colorPickerLayout);
+        AlphaSlideBar alphaSlideBar = dbView.findViewById(R.id.alphaSlideBar);
+        BrightnessSlideBar brightnessSlideBar = dbView.findViewById(R.id.brightnessSlide);
 
-        resizeToggle = view.findViewById(R.id.toggle_button).isActivated();
+        resizeToggle = dbView.findViewById(R.id.toggle_button).isActivated();
 
         // Add alpha and brightness sliders
         color_picker_view.attachAlphaSlider(alphaSlideBar);
@@ -84,7 +85,7 @@ public class DrawingBoardActivity extends Fragment {
 
         set_initial_color();
 
-        return view;
+        return dbView;
     }
 
     private void set_initial_color() {
@@ -167,4 +168,16 @@ public class DrawingBoardActivity extends Fragment {
             RoomViewActionUtility.ChangeWidth((float)seekbar.getProgress());
         }
     };
+
+
+    public void toggleToolbox() {
+        ConstraintLayout toolboxLayout = dbView.findViewById(R.id.toolbox_view);
+
+        if (toolboxLayout.getVisibility() == View.VISIBLE) {
+            toolboxLayout.setVisibility(View.GONE);
+        }
+        else {
+            toolboxLayout.setVisibility(View.VISIBLE);
+        }
+    }
 }
