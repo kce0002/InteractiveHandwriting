@@ -30,7 +30,7 @@ public class ScreenShareService extends Service {
     public static boolean isStreaming;
     public static boolean otherUserStreaming;
 
-    private final int STREAM_QUALITY = 50;
+    private final int STREAM_QUALITY = 15;
 
 
     @Override
