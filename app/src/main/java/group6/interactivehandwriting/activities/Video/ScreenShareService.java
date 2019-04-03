@@ -158,7 +158,7 @@ public class ScreenShareService extends Service {
 
         String channelId = "screen_sharing";
         NotificationChannel channel = new NotificationChannel(channelId,
-                "Screen Sharing Channel", NotificationManager.IMPORTANCE_HIGH);
+                "Screen Sharing Channel", NotificationManager.IMPORTANCE_DEFAULT);
         notificationManager.createNotificationChannel(channel);
         builder.setChannelId(channelId);
 

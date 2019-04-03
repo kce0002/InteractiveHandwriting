@@ -33,7 +33,7 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     static Intent screenShareIntent;
 
-    ToggleButton tBtn;
+    ToggleButton screenShareBtn;
     Button streamBtn;
     Button viewStreamBtn;
 
@@ -45,7 +45,7 @@ public class VideoMenuActivity extends AppCompatActivity {
         networkServiceConnection = getNetworkServiceConnection();
         screenShareIntent = new Intent(this, ScreenShareService.class);
 
-        tBtn = findViewById(R.id.screenShare);
+        screenShareBtn = findViewById(R.id.screenShare);
         streamBtn = findViewById(R.id.startStream);
         viewStreamBtn = findViewById(R.id.joinStream);
     }
@@ -77,8 +77,8 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     public void screenShare(View view) {
         mediaProjectionManager = (MediaProjectionManager)getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
-        ToggleButton tBtn = findViewById(R.id.screenShare);
-        if (tBtn.isChecked()) {
+        ToggleButton screenShareBtn = findViewById(R.id.screenShare);
+        if (screenShareBtn.isChecked()) {
             this.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_CODE_SCREEN_RECORDING);
         }
         else {
@@ -94,7 +94,6 @@ public class VideoMenuActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
                 ScreenShareService.mediaProjection = mediaProjection;
-//                startService(screenShareIntent);
                 startForegroundService(screenShareIntent);
                 networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_STARTED);
                 ScreenShareService.setCurStartTime(java.lang.System.currentTimeMillis());
@@ -105,8 +104,8 @@ public class VideoMenuActivity extends AppCompatActivity {
                 ScreenShareService.isStreaming = true;
             }
             else if (Activity.RESULT_CANCELED == resultCode) {
-                ToggleButton tBtn = findViewById(R.id.screenShare);
-                tBtn.setChecked(false);
+                ToggleButton screenShareBtn = findViewById(R.id.screenShare);
+                screenShareBtn.setChecked(false);
             }
         }
     }
@@ -139,19 +138,19 @@ public class VideoMenuActivity extends AppCompatActivity {
 
     public void setButtons() {
         if (ScreenShareService.otherUserStreaming) {
-            tBtn.setChecked(false);
-            tBtn.setEnabled(false);
+            screenShareBtn.setChecked(false);
+            screenShareBtn.setEnabled(false);
             streamBtn.setEnabled(false);
             viewStreamBtn.setEnabled(true);
         }
         else if (ScreenShareService.isStreaming) {
-            tBtn.setChecked(true);
+            screenShareBtn.setChecked(true);
             streamBtn.setEnabled(false);
             viewStreamBtn.setEnabled(false);
         }
         else {
-            tBtn.setEnabled(true);
-            tBtn.setChecked(false);
+            screenShareBtn.setEnabled(true);
+            screenShareBtn.setChecked(false);
             streamBtn.setEnabled(true);
             viewStreamBtn.setEnabled(true);
         }
