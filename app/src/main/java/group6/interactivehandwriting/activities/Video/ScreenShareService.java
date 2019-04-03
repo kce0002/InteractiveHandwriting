@@ -2,6 +2,8 @@ package group6.interactivehandwriting.activities.Video;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +24,7 @@ import android.view.WindowManager;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
+import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
@@ -32,6 +35,8 @@ public class ScreenShareService extends Service {
     public static ImageReader imageReader;
     public static boolean isStreaming;
     public static boolean otherUserStreaming;
+
+    private static NotificationManager notificationManager;
 
     private final int STREAM_QUALITY = 15;
 
@@ -118,6 +123,7 @@ public class ScreenShareService extends Service {
 
     @Override
     public void onDestroy() {
+        stopForeground(true);
         System.out.println("Screen Share Service Stopped");
         imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
@@ -137,13 +143,26 @@ public class ScreenShareService extends Service {
     }
 
     private Notification createNotification() {
+        notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "screen_sharing");
 
-        Notification notification =
-                new Notification.Builder(this, Notification.EXTRA_CHANNEL_ID)
-                        .setContentTitle("Screen Sharing")
-                        .setContentText("Screen Sharing")
-                        .build();
-        return notification;
+        Intent notificationIntent = new Intent(this, VideoMenuActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        builder.setContentTitle("Screen Sharing")
+                .setContentText("Screen Sharing")
+                .setContentIntent(pendingIntent)
+                .setTicker("Screen Sharing")
+                .setSmallIcon(R.drawable.ic_screen_share_white_24dp)
+                .setVisibility(Notification.VISIBILITY_PUBLIC);
+
+        String channelId = "screen_sharing";
+        NotificationChannel channel = new NotificationChannel(channelId,
+                "Screen Sharing Channel", NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+        builder.setChannelId(channelId);
+
+        return builder.build();
     }
 
 }
