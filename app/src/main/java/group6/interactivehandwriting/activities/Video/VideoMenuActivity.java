@@ -86,6 +86,7 @@ public class VideoMenuActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -93,8 +94,10 @@ public class VideoMenuActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
                 ScreenShareService.mediaProjection = mediaProjection;
-                startService(screenShareIntent);
+//                startService(screenShareIntent);
+                startForegroundService(screenShareIntent);
                 networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_STARTED);
+                ScreenShareService.setCurStartTime(java.lang.System.currentTimeMillis());
                 Toast.makeText(VideoMenuActivity.this, "Screen share starting", Toast.LENGTH_LONG).show();
 
                 findViewById(R.id.startStream).setEnabled(false);

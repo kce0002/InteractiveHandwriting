@@ -94,6 +94,9 @@ public class VideoStreamActivity extends AppCompatActivity {
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
 
+    private int frameCount;
+    private long curStartTime;
+
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
@@ -151,6 +154,8 @@ public class VideoStreamActivity extends AppCompatActivity {
                 networkLayer = binder.getNetworkLayer();
 
                 networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_STARTED);
+                curStartTime = java.lang.System.currentTimeMillis();
+
             }
 
             @Override
@@ -248,6 +253,8 @@ public class VideoStreamActivity extends AppCompatActivity {
             byte[] bitmapByteArray = bitmapStream.toByteArray();
 
             networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
+            frameCount++;
+            System.out.println(getFPS());
         }
     };
 
@@ -300,5 +307,9 @@ public class VideoStreamActivity extends AppCompatActivity {
         cameraIndex = (cameraIndex == 0) ? 1 : 0;
         cameraDevice.close();
         openCamera();
+    }
+
+    private double getFPS() {
+        return frameCount / ((java.lang.System.currentTimeMillis() - curStartTime) / 1000.0);
     }
 }

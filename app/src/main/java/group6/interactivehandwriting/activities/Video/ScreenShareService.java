@@ -1,5 +1,7 @@
 package group6.interactivehandwriting.activities.Video;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
@@ -32,6 +35,9 @@ public class ScreenShareService extends Service {
 
     private final int STREAM_QUALITY = 15;
 
+    private static int frameCount;
+    private static long curStartTime;
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -39,8 +45,13 @@ public class ScreenShareService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
+
+        startForeground(1338, createNotification());
+
+
         System.out.println("Screen Share Service Started");
 
         WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
@@ -52,6 +63,7 @@ public class ScreenShareService extends Service {
         final int width = size.x;
         final int height = size.y;
         int density = metrics.densityDpi;
+        frameCount = 0;
 
         imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1);
         final Handler handler = new Handler();
@@ -90,6 +102,8 @@ public class ScreenShareService extends Service {
                 System.out.println("Sharing:  "  + bitmapStream.size());
                 byte[] bitmapByteArray = bitmapStream.toByteArray();
                 networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
+                frameCount++;
+                System.out.println(getFPS());
 
                 image.close();
 
@@ -114,5 +128,22 @@ public class ScreenShareService extends Service {
         super.onDestroy();
     }
 
+    private double getFPS() {
+        return frameCount / ((java.lang.System.currentTimeMillis() - curStartTime) / 1000.0);
+    }
+
+    public static void setCurStartTime(long curStartTimeIn) {
+        curStartTime = curStartTimeIn;
+    }
+
+    private Notification createNotification() {
+
+        Notification notification =
+                new Notification.Builder(this, Notification.EXTRA_CHANNEL_ID)
+                        .setContentTitle("Screen Sharing")
+                        .setContentText("Screen Sharing")
+                        .build();
+        return notification;
+    }
 
 }
