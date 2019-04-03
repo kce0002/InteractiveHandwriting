@@ -83,15 +83,19 @@ public class VideoStreamActivity extends AppCompatActivity {
     private CaptureRequest.Builder captureRequestBuilder;
     private Size imageDimension;
 
+    private int cameraIndex = 0;
+
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
-    public static final int WIFI_QUALITY = 20;
-    public static final int BLUETOOTH_QUALITY = 5;
+    private final int STREAM_QUALITY = 50;
 
     NetworkLayer networkLayer;
     ServiceConnection networkServiceConnection;
+
+    private int frameCount;
+    private long curStartTime;
 
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -108,7 +112,7 @@ public class VideoStreamActivity extends AppCompatActivity {
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int i) {
             cameraDevice.close();
-            cameraDevice=null;
+            cameraDevice = null;
         }
     };
 
@@ -137,8 +141,8 @@ public class VideoStreamActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unbindService(networkServiceConnection);
-        byte emptyData[] = {0};
-        networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_ENDED);
+
+        networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_ENDED);
     }
 
     private ServiceConnection getNetworkServiceConnection() {
@@ -148,8 +152,10 @@ public class VideoStreamActivity extends AppCompatActivity {
             public void onServiceConnected (ComponentName name, IBinder service){
                 NetworkLayerBinder binder = (NetworkLayerBinder) service;
                 networkLayer = binder.getNetworkLayer();
-                byte emptyData[] = {0};
-                networkLayer.sendBytes(emptyData, NetworkMessageType.STREAM_STARTED);
+
+                networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_STARTED);
+                curStartTime = java.lang.System.currentTimeMillis();
+
             }
 
             @Override
@@ -200,7 +206,7 @@ public class VideoStreamActivity extends AppCompatActivity {
     private void openCamera() {
         CameraManager manager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
         try{
-            cameraId = manager.getCameraIdList()[0];
+            cameraId = manager.getCameraIdList()[cameraIndex];
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             assert map != null;
@@ -242,11 +248,13 @@ public class VideoStreamActivity extends AppCompatActivity {
             Bitmap textureViewBitmap = textureView.getBitmap();
             ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 
-            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bitmapStream);
+            textureViewBitmap.compress(Bitmap.CompressFormat.JPEG, STREAM_QUALITY, bitmapStream);
             System.out.println("Streaming "  + bitmapStream.size());
             byte[] bitmapByteArray = bitmapStream.toByteArray();
 
             networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
+            frameCount++;
+            System.out.println(getFPS());
         }
     };
 
@@ -293,5 +301,15 @@ public class VideoStreamActivity extends AppCompatActivity {
         mBackgroundThread = new HandlerThread("Camera Background");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+
+    public void switchCamera(View view) {
+        cameraIndex = (cameraIndex == 0) ? 1 : 0;
+        cameraDevice.close();
+        openCamera();
+    }
+
+    private double getFPS() {
+        return frameCount / ((java.lang.System.currentTimeMillis() - curStartTime) / 1000.0);
     }
 }

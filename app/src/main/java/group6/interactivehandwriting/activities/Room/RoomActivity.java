@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
 import group6.interactivehandwriting.activities.Room.views.RoomView;
+import group6.interactivehandwriting.activities.Video.ScreenShareService;
 import group6.interactivehandwriting.activities.Video.VideoMenuActivity;
 import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
@@ -45,6 +46,8 @@ import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkConnection;
 import group6.interactivehandwriting.common.network.nearby.connections.NCNetworkLayerService;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
+
 
 public class RoomActivity extends AppCompatActivity {
     private RoomView roomView;
@@ -350,6 +353,11 @@ public class RoomActivity extends AppCompatActivity {
     public void onBackPressed() {
         ncNetworkConnection.stopAdvertising();
         ncNetworkConnection.discover();
+        Intent killService = new Intent(this, ScreenShareService.class);
+        stopService(killService);
+        Toast.makeText(RoomActivity.this, "Screen share ending", Toast.LENGTH_LONG).show();
+        networkLayer.sendBytes(new byte[] {}, NetworkMessageType.STREAM_ENDED);
+        ScreenShareService.isStreaming = false;
         super.onBackPressed();
     }
 
