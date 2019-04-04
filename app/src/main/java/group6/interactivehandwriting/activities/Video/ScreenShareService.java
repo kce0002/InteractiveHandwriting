@@ -147,10 +147,11 @@ public class ScreenShareService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "screen_sharing");
 
         Intent notificationIntent = new Intent(this, VideoMenuActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         builder.setContentTitle("Screen Sharing")
-                .setContentText("Screen Sharing")
+                .setContentText("Click to return to screen share menu")
                 .setContentIntent(pendingIntent)
                 .setTicker("Screen Sharing")
                 .setSmallIcon(R.drawable.ic_screen_share_white_24dp)

@@ -32,7 +32,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.Video.VideoMenuActivity"
-            android:label="Streaming" />
+            android:label="Streaming"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".activities.Video.VideoStreamActivity"
             android:label="Live Streaming"
