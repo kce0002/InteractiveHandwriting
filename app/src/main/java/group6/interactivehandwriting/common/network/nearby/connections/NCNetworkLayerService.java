@@ -316,6 +316,8 @@ public class NCNetworkLayerService extends NetworkLayerService {
                     username = routingTable.getProfile(header.getDeviceId()).username;
                     videoViewActivity.showVideo(header, dataSection, username);
                 }
+            case RECEIVER_FPS:
+                ScreenShareService.compareFPS((float) dataSection[0]);
                 break;
             case START_DRAW:
                 sendActionToCanvasManager(id, StartDrawActionMessage.actionFromBytes(dataSection));

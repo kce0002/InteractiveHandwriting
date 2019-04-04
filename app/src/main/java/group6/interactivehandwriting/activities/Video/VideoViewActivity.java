@@ -25,6 +25,7 @@ import group6.interactivehandwriting.common.app.Permissions;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.NetworkLayerBinder;
 import group6.interactivehandwriting.common.network.NetworkLayerService;
+import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 import group6.interactivehandwriting.common.network.nearby.connections.message.serial.SerialMessageHeader;
 
 
@@ -34,6 +35,10 @@ public class VideoViewActivity extends AppCompatActivity {
     ServiceConnection networkServiceConnection;
     public ImageView imageView;
     ArrayList<Byte> byteArrayList;
+
+    private int frameCount = 0;
+    private long curStartTime = -1;
+    private final float CHECK_FPS_INTERVAL = 2f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,11 +86,16 @@ public class VideoViewActivity extends AppCompatActivity {
     }
 
     public void showVideo(SerialMessageHeader header, byte[] frameBytes, String username) {
+        if (curStartTime == -1) {
+            curStartTime = java.lang.System.currentTimeMillis();
+        }
 
         this.setTitle(username + "'s Stream");
         if (header.getBigData() == (byte) 0) {
             Bitmap bmp = BitmapFactory.decodeByteArray(frameBytes, 0, frameBytes.length);
             imageView.setImageBitmap(bmp);
+            frameCount++;
+            checkTimeSendFPS();
         }
         else if (header.getBigData() == (byte) 1) {
             for (int i = 0; i < frameBytes.length; i++) {
@@ -102,6 +112,8 @@ public class VideoViewActivity extends AppCompatActivity {
             }
             Bitmap bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
             imageView.setImageBitmap(bmp);
+            frameCount++;
+            checkTimeSendFPS();
             byteArrayList.clear();
         }
 
@@ -114,6 +126,20 @@ public class VideoViewActivity extends AppCompatActivity {
         finish();
         overridePendingTransition(0, 0);
         startActivity(intent);
+        curStartTime = -1;
+    }
+
+    private float getFPS() {
+        return (float) (frameCount / ((java.lang.System.currentTimeMillis() - curStartTime) / 1000.0));
+    }
+
+    private void checkTimeSendFPS() {
+        float timeDifference = (float) ((java.lang.System.currentTimeMillis() - curStartTime) / 1000.0);
+        if (timeDifference >= CHECK_FPS_INTERVAL) {
+            networkLayer.sendBytes(new byte[] {(byte) getFPS()}, NetworkMessageType.RECEIVER_FPS);
+            curStartTime = java.lang.System.currentTimeMillis();
+            frameCount = 0;
+        }
     }
 
 }

@@ -38,11 +38,15 @@ public class ScreenShareService extends Service {
 
     private static NotificationManager notificationManager;
 
-    private final int STREAM_QUALITY = 15;
+    private static int streamQuality = 15;
+
+    private static final int MAX_QUALITY = 50;
+    private static final int MIN_QUALITY = 1;
+    private static final float MIN_QUALITY_FACTOR = 0.75f;
+    private static final float DESIRED_QUALITY_FACTOR = 0.9f;
 
     private static int frameCount;
     private static long curStartTime;
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -55,7 +59,6 @@ public class ScreenShareService extends Service {
     public int onStartCommand (Intent intent, int flags, int startId) {
 
         startForeground(1338, createNotification());
-
 
         System.out.println("Screen Share Service Started");
 
@@ -103,7 +106,7 @@ public class ScreenShareService extends Service {
                 Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
 
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                realSizeBitmap.compress(Bitmap.CompressFormat.JPEG, STREAM_QUALITY, bitmapStream);
+                realSizeBitmap.compress(Bitmap.CompressFormat.JPEG, streamQuality, bitmapStream);
                 System.out.println("Sharing:  "  + bitmapStream.size());
                 byte[] bitmapByteArray = bitmapStream.toByteArray();
                 networkLayer.sendBytes(bitmapByteArray, NetworkMessageType.VIDEO_STREAM);
@@ -134,8 +137,8 @@ public class ScreenShareService extends Service {
         super.onDestroy();
     }
 
-    private double getFPS() {
-        return frameCount / ((java.lang.System.currentTimeMillis() - curStartTime) / 1000.0);
+    private static float getFPS() {
+        return (float) (frameCount / ((java.lang.System.currentTimeMillis() - curStartTime) / 1000.0));
     }
 
     public static void setCurStartTime(long curStartTimeIn) {
@@ -164,6 +167,36 @@ public class ScreenShareService extends Service {
         builder.setChannelId(channelId);
 
         return builder.build();
+    }
+
+    private static void adjustStreamQuality(boolean increaseQuality) {
+        if (increaseQuality) {
+            int newQuality = streamQuality + 5;
+            if (newQuality > MAX_QUALITY) {
+                newQuality = MAX_QUALITY;
+            }
+            streamQuality = newQuality;
+        }
+        else {
+            int newQuality = streamQuality - 5;
+            if (newQuality < MIN_QUALITY) {
+                newQuality = MIN_QUALITY;
+            }
+            streamQuality = newQuality;
+        }
+    }
+
+    public static void compareFPS(float receiverFPS) {
+        float senderFPS = getFPS();
+        if (senderFPS * MIN_QUALITY_FACTOR > receiverFPS) {
+            adjustStreamQuality(false);
+        }
+        else if (receiverFPS > senderFPS * DESIRED_QUALITY_FACTOR) {
+            adjustStreamQuality(true);
+        }
+
+        curStartTime = java.lang.System.currentTimeMillis();
+        frameCount = 0;
     }
 
 }
