@@ -38,11 +38,11 @@ public class ScreenShareService extends Service {
 
     private static NotificationManager notificationManager;
 
-    private static int streamQuality = 15;
+    private static int streamQuality = 10;
 
     private static final int MAX_QUALITY = 50;
     private static final int MIN_QUALITY = 1;
-    private static final float MIN_QUALITY_FACTOR = 0.75f;
+    private static final float MIN_QUALITY_FACTOR = 0.65f;
     private static final float DESIRED_QUALITY_FACTOR = 0.9f;
 
     private static int frameCount;
@@ -77,14 +77,12 @@ public class ScreenShareService extends Service {
         final Handler handler = new Handler();
 
         int vdFlags = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
-        //mediaProjection.createVirtualDisplay("screen-mirror", width, height, density, vdFlags, imageReader.getSurface(), null, handler);
         mediaProjection.createVirtualDisplay("screen-mirror", width, height, density, vdFlags, imageReader.getSurface(), null, null);
         imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader reader) {
                 reader.setOnImageAvailableListener(this, handler);
 
-//                Image image = imageReader.acquireLatestImage();
                 Image image = imageReader.acquireNextImage();
 
                 if (image == null) {

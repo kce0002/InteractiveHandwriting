@@ -38,7 +38,7 @@ public class VideoViewActivity extends AppCompatActivity {
 
     private int frameCount = 0;
     private long curStartTime = -1;
-    private final float CHECK_FPS_INTERVAL = 2f;
+    private final float CHECK_FPS_INTERVAL = 4.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
