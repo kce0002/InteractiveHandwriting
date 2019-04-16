@@ -24,7 +24,9 @@ public enum NetworkMessageType {
     UNDO_DRAW(14),
 
     SYNC_REQUEST(24),
-    SYNC_REPLY(25);
+    SYNC_REPLY(25),
+
+    FILE_SHARE(30);
 
     private int value;
 

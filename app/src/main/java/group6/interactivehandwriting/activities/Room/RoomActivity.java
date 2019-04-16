@@ -224,13 +224,10 @@ public class RoomActivity extends AppCompatActivity {
                 pdfiumCore.openPage(pdfDocument, pageNum);
                 pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0, screen_width, screen_height, true);
                 bitmapArr[pageNum] = bitmap;
+                sendBitmap(bitmap, pageCount);
             }
 
             documentView.setPDF(bitmapArr);
-
-            if (networkLayer != null) {
-                networkLayer.sendFile(fd);
-            }
 
             pdfiumCore.closeDocument(pdfDocument); // important!
 
@@ -241,6 +238,17 @@ public class RoomActivity extends AppCompatActivity {
         } catch(IOException ex) {
             Toast.makeText(context, "File corrupted", Toast.LENGTH_SHORT).show();
             ex.printStackTrace();
+        }
+    }
+
+    private void sendBitmap(Bitmap bitmap, int pageCount) {
+        if (networkLayer != null) {
+            ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bitmapStream);
+
+            byte[] bitmapByteArray = bitmapStream.toByteArray();
+            networkLayer.sendFile(bitmapByteArray, (byte) pageCount);
         }
     }
 

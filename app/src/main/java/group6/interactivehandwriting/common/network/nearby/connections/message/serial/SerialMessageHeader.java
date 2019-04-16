@@ -9,12 +9,13 @@ import group6.interactivehandwriting.common.network.nearby.connections.message.N
  */
 
 public class SerialMessageHeader implements NetworkSerializable<SerialMessageHeader> {
-    public static final int BYTE_SIZE = 21;
+    public static final int BYTE_SIZE = 22;
     private NetworkMessageType type;
     private int roomNumber;
     private int sequenceNumber;
     private long deviceId;
     private byte bigData;
+    private byte pageCount;
 
     private static int globalSequenceNumber;
 
@@ -53,6 +54,11 @@ public class SerialMessageHeader implements NetworkSerializable<SerialMessageHea
     // 2 - last piece of larger data set
     public SerialMessageHeader withBigData(byte bigData) {
         this.bigData = bigData;
+        return this;
+    }
+
+    public SerialMessageHeader withPageCount(byte pageCount) {
+        this.pageCount = pageCount;
         return this;
     }
 

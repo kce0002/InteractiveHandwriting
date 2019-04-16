@@ -42,7 +42,7 @@ public interface NetworkLayer {
     void exitRoom();
 
     void sendBytes(byte[] bytes, NetworkMessageType networkMessageType);
-    void sendFile(ParcelFileDescriptor fd);
+    void sendFile(byte[] bytes, byte pageCount);
 
     void receiveDrawActions(final DrawActionHandle handle);
     void startDraw(final StartDrawAction action);

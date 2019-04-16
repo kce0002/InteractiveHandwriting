@@ -196,9 +196,14 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
-    public void sendFile(ParcelFileDescriptor fd) {
-        Payload filePayload = Payload.fromFile(fd);
-        networkConnection.sendFile(filePayload, routingTable.getNeighborEndpoints());
+    public void sendFile(byte[] bytes, byte pageCount) {
+        SerialMessageHeader header = new SerialMessageHeader()
+                .withId(myProfile.deviceId)
+                .withRoomNumber(myRoom.getRoomNumber())
+                .withSequenceNumber(SerialMessageHeader.getNextSequenceNumber())
+                .withType(NetworkMessageType.FILE_SHARE)
+                .withPageCount(pageCount);
+        networkConnection.sendMessage(header, bytes, routingTable.getNeighborEndpoints());
     }
 
     @Override
