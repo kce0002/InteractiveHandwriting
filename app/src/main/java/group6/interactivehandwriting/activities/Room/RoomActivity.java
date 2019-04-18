@@ -1,5 +1,6 @@
 package group6.interactivehandwriting.activities.Room;
 
+import android.support.v4.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -82,6 +83,14 @@ public class RoomActivity extends AppCompatActivity {
 
         viewPager = (ViewPagerNoScroll) findViewById(R.id.viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("onCreate for Room Activity has been called");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
 
         adapter = new TabAdapter(getSupportFragmentManager());
         adapter.addFragment(drawingBoardActivity, "Drawing Board");
@@ -236,8 +245,12 @@ public class RoomActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ncNetworkConnection.stopAdvertising();
         ncNetworkConnection.discover();
+        fragmentTransaction.replace(R.id.roomView_layout, adapter.getItem(0)).commit();
+        fragmentTransaction.replace(R.id.roomView_layoutDraw, adapter.getItem(1)).commit();
         super.onBackPressed();
     }
 

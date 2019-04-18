@@ -15,6 +15,7 @@ import java.util.Set;
 import group6.interactivehandwriting.activities.Room.DrawingBoard.DrawingBoardActivity;
 import group6.interactivehandwriting.activities.Room.PDF.PDFActivity;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
+import group6.interactivehandwriting.activities.Video.VideoMenuActivity;
 import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
 import group6.interactivehandwriting.common.app.actions.draw.EndDrawAction;
@@ -36,6 +37,7 @@ public interface NetworkLayer {
     void setRoomActivity(RoomActivity roomActivity);
     void setPDFActivity(PDFActivity pdfActivity);
     void setVideoViewActivity(VideoViewActivity videoViewActivity);
+    public void setVideoMenuActivity(VideoMenuActivity videoMenuActivity);
 
     NCNetworkConnection getNCNetworkConnection();
 

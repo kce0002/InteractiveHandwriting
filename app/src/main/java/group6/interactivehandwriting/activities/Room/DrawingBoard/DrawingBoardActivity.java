@@ -40,7 +40,7 @@ public class DrawingBoardActivity extends Fragment {
         dbView = inflater.inflate(R.layout.room_layout, container, false);
 
 
-        roomLayout = dbView.findViewById(R.id.roomView_layout);
+        roomLayout = dbView.findViewById(R.id.roomView_layoutDraw);
         roomLayout.setBackgroundColor(Color.WHITE);
 
         roomView = new RoomView(dbView.getContext());

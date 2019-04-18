@@ -14,10 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import group6.interactivehandwriting.activities.Room.DrawingBoard.DrawingBoardActivity;
 import group6.interactivehandwriting.activities.Room.PDF.PDFActivity;
+import group6.interactivehandwriting.activities.Room.DrawingBoard.DrawingBoardActivity;
 import group6.interactivehandwriting.activities.Room.RoomActivity;
 import group6.interactivehandwriting.activities.Room.views.DocumentView;
+import group6.interactivehandwriting.activities.Video.VideoMenuActivity;
 import group6.interactivehandwriting.activities.Video.VideoViewActivity;
 import group6.interactivehandwriting.common.app.actions.Action;
 import group6.interactivehandwriting.common.app.actions.DrawActionHandle;
@@ -64,6 +65,7 @@ public class NCNetworkLayerService extends NetworkLayerService {
 
     private RoomActivity roomActivity;
     private VideoViewActivity videoViewActivity;
+    private VideoMenuActivity videoMenuActivity;
     private PDFActivity pdfActivity;
 
     public boolean onConnectionInitiated(String endpointId) {
@@ -119,13 +121,18 @@ public class NCNetworkLayerService extends NetworkLayerService {
     }
 
     @Override
-    public void setPDFActivity(PDFActivity pdfActivity) {
-        this.pdfActivity = pdfActivity;
+    public void setVideoViewActivity(VideoViewActivity videoViewActivity) {
+        this.videoViewActivity = videoViewActivity;
     }
 
     @Override
-    public void setVideoViewActivity(VideoViewActivity videoViewActivity) {
-        this.videoViewActivity = videoViewActivity;
+    public void setVideoMenuActivity(VideoMenuActivity videoMenuActivity) {
+        this.videoMenuActivity = videoMenuActivity;
+    }
+
+    @Override
+    public void setPDFActivity(PDFActivity pdfActivity) {
+        this.pdfActivity = pdfActivity;
     }
 
     @Override

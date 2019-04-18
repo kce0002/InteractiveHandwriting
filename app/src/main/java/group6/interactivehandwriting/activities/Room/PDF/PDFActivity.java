@@ -57,6 +57,15 @@ public class PDFActivity extends Fragment {
         roomLayout.setBackgroundColor(Color.WHITE);
 
         roomView = new RoomView(context);
+
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("onCreateView for PDF Activity has been called");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~~");
+
         roomLayout.addView(roomView);
         roomLayout.bringChildToFront(roomView);
 

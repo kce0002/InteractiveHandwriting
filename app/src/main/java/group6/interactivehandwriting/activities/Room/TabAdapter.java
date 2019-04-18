@@ -1,6 +1,7 @@
 package group6.interactivehandwriting.activities.Room;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+//import android.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import java.util.ArrayList;
