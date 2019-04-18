@@ -296,9 +296,6 @@ public class NCNetworkLayerService extends NetworkLayerService {
                 }
                 username = routingTable.getProfile(header.getDeviceId()).username;
                 Toast.makeText(context, "Stream started by " + username, Toast.LENGTH_LONG).show();
-                if (videoViewActivity != null) {
-                    videoViewActivity.setTitle(username + "'s Stream");
-                }
                 break;
             case STREAM_ENDED:
                 ScreenShareService.otherUserStreaming = false;

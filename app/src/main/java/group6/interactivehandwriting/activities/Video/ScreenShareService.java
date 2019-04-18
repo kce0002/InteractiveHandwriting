@@ -7,7 +7,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
@@ -27,6 +29,9 @@ import java.nio.ByteBuffer;
 import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
+
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
 public class ScreenShareService extends Service {
 
@@ -73,7 +78,7 @@ public class ScreenShareService extends Service {
         int density = metrics.densityDpi;
         frameCount = 0;
 
-        imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1);
+        imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2);
         final Handler handler = new Handler();
 
         int vdFlags = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
@@ -83,7 +88,7 @@ public class ScreenShareService extends Service {
             public void onImageAvailable(ImageReader reader) {
                 reader.setOnImageAvailableListener(this, handler);
 
-                Image image = imageReader.acquireNextImage();
+                Image image = imageReader.acquireLatestImage();
 
                 if (image == null) {
                     return;
@@ -97,11 +102,36 @@ public class ScreenShareService extends Service {
                 int rowPadding = rowStride - pixelStride * metrics.widthPixels;
 
                 // create bitmap
+//
+//                System.out.println(metrics.widthPixels);
+//                System.out.println(metrics.heightPixels);
+
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    // When switching from landscape to portrait the last frame in landscape mode is sent as it should be
+                    System.out.println("Portrait");
+                }
+                else {
+                    System.out.println("Landscape");
+                }
+
                 Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels + (int) ((float) rowPadding / (float) pixelStride), metrics.heightPixels, Bitmap.Config.ARGB_8888);
+
                 bmp.copyPixelsFromBuffer(buffer);
 
-                // network stuff:
                 Bitmap realSizeBitmap = Bitmap.createBitmap(bmp, 0, 0, metrics.widthPixels, bmp.getHeight());
+
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+
+                    int bitmapHeight = realSizeBitmap.getHeight();
+                    int bitmapWidth = realSizeBitmap.getWidth();
+                    float aspectRatio = (float) realSizeBitmap.getHeight() / realSizeBitmap.getWidth();
+                    int newHeight = (int) Math.ceil(realSizeBitmap.getWidth() / aspectRatio);
+
+
+                    realSizeBitmap = Bitmap.createBitmap(realSizeBitmap, 0, (bitmapHeight - newHeight) / 2, bitmapWidth, newHeight, matrix, true);
+                }
 
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
                 realSizeBitmap.compress(Bitmap.CompressFormat.JPEG, streamQuality, bitmapStream);

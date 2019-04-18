@@ -1,5 +1,6 @@
 package group6.interactivehandwriting.activities.Video;
 
+import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -11,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 
 import org.apache.commons.io.IOUtils;
@@ -43,6 +45,11 @@ public class VideoViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
         setContentView(R.layout.video_view_layout);
 
         imageView = findViewById(R.id.imageView);
@@ -90,7 +97,6 @@ public class VideoViewActivity extends AppCompatActivity {
             curStartTime = java.lang.System.currentTimeMillis();
         }
 
-        this.setTitle(username + "'s Stream");
         if (header.getBigData() == (byte) 0) {
             Bitmap bmp = BitmapFactory.decodeByteArray(frameBytes, 0, frameBytes.length);
             imageView.setImageBitmap(bmp);

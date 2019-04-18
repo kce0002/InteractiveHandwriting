@@ -24,10 +24,12 @@
         <service
             android:name=".activities.Video.ScreenShareService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true">
+        </service>
 
         <activity
             android:name=".activities.Video.VideoViewActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="No Users Streaming"
             android:screenOrientation="portrait" />
         <activity
