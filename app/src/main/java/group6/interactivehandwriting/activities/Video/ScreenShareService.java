@@ -30,9 +30,6 @@ import group6.interactivehandwriting.R;
 import group6.interactivehandwriting.common.network.NetworkLayer;
 import group6.interactivehandwriting.common.network.nearby.connections.message.NetworkMessageType;
 
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-
 public class ScreenShareService extends Service {
 
     public static NetworkLayer networkLayer;
@@ -100,19 +97,6 @@ public class ScreenShareService extends Service {
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
                 int rowPadding = rowStride - pixelStride * metrics.widthPixels;
-
-                // create bitmap
-//
-//                System.out.println(metrics.widthPixels);
-//                System.out.println(metrics.heightPixels);
-
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    // When switching from landscape to portrait the last frame in landscape mode is sent as it should be
-                    System.out.println("Portrait");
-                }
-                else {
-                    System.out.println("Landscape");
-                }
 
                 Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels + (int) ((float) rowPadding / (float) pixelStride), metrics.heightPixels, Bitmap.Config.ARGB_8888);
 
